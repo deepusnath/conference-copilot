@@ -1,21 +1,6 @@
 // App logic. Content/data lives in seed-data.js.
 const KEY="cqe-conf-tracker-v2";
-const TODAY=new Date(); TODAY.setHours(0,0,0,0);
-let data;
-try{ data=JSON.parse(localStorage.getItem(KEY))||null }catch(e){ data=null }
-if(!data){ data=structuredClone(SEED); save(); }
-else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
-  SEED.forEach(s=>{
-    const cur=known.get(s.id);
-    if(!cur){ data.push(structuredClone(s)); changed=true; }
-    else{ // sync curated metadata into stored copies without touching user fields
-      if(JSON.stringify(cur.fits||null)!==JSON.stringify(s.fits||null)){ cur.fits=s.fits; changed=true; }
-      if((cur.kind||null)!==(s.kind||null)){ cur.kind=s.kind; changed=true; }
-      if(cur.tier!==s.tier){ cur.tier=s.tier; changed=true; }
-    }
-  });
-  if(changed) save(); }
-
+let sb=null,sbUser=null,pushTimer=null; // cloud state — declared early: save() may run during initial load
 // ---- researcher profile state (#14) + keyword matching engine (#15) ----
 const PKEY="cqe-profile-v1";
 let prof=null;
@@ -38,6 +23,22 @@ function computeFits(c){
 function profText(){
   return `${prof.name} \u2014 ${prof.headline}. Thesis: ${prof.thesis}. ${prof.guidance}`;
 }
+const TODAY=new Date(); TODAY.setHours(0,0,0,0);
+let data;
+try{ data=JSON.parse(localStorage.getItem(KEY))||null }catch(e){ data=null }
+if(!data){ data=structuredClone(SEED); save(); }
+else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
+  SEED.forEach(s=>{
+    const cur=known.get(s.id);
+    if(!cur){ data.push(structuredClone(s)); changed=true; }
+    else{ // sync curated metadata into stored copies without touching user fields
+      if(JSON.stringify(cur.fits||null)!==JSON.stringify(s.fits||null)){ cur.fits=s.fits; changed=true; }
+      if((cur.kind||null)!==(s.kind||null)){ cur.kind=s.kind; changed=true; }
+      if(cur.tier!==s.tier){ cur.tier=s.tier; changed=true; }
+    }
+  });
+  if(changed) save(); }
+
 function save(){ if(RO) return; try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
 function days(d){ if(!d) return null; return Math.round((new Date(d+"T00:00:00")-TODAY)/864e5) }
 function fmt(d){ if(!d) return "TBA"; const dt=new Date(d+"T00:00:00"); return dt.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) }
@@ -346,7 +347,6 @@ document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",a
 renderDash(); renderPipe();
 
 // ---- optional cloud sync (Supabase) — active only when config.js sets window.COPILOT_SUPABASE ----
-let sb=null,sbUser=null,pushTimer=null;
 function pushCloud(now){
   if(!sb||!sbUser) return;
   clearTimeout(pushTimer);

@@ -21,5 +21,6 @@ for(const c of SEED){
 }
 if(errs.length){ console.error("DATA ERRORS:\n"+errs.join("\n")); process.exit(1); }
 
+execFileSync(process.execPath,["scripts/boot-smoke.mjs"],{stdio:"inherit"});
 execFileSync(process.execPath,["scripts/bundle.mjs"],{stdio:"inherit"});
 console.log(`OK — modules valid, ${SEED.length} seed entries, invariants hold, bundle builds.`);
