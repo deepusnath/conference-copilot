@@ -148,7 +148,10 @@ dialog input,dialog select{width:100%;font:inherit;font-size:14px;border:1px sol
     <select id="fStatus" aria-label="Filter by status"><option value="">All statuses</option></select>
     <span class="spacer"></span>
     <button class="btn" id="exportBtn">Export JSON</button>
+    <button class="btn" id="importBtn">Import JSON</button>
     <button class="btn" id="csvBtn">Export CSV</button>
+    <button class="btn" id="icsBtn">Export .ics</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
     <button class="btn" id="resetBtn" title="Restore the researched seed list">Reset data</button>
     <button class="btn primary" id="addBtn">Add conference</button>
   </div>
@@ -582,6 +585,37 @@ document.getElementById("csvBtn").addEventListener("click",()=>{
   const rows=data.map(c=>[c.acr,c.name,c.city,c.event,c.dl,c.approx,c.tier,c.status,c.url,(c.notes||"").replace(/\n/g," ")]
     .map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(","));
   dl("pipeline.csv",[h.join(","),...rows].join("\n"),"text/csv");
+});
+document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    let imported;
+    try{ imported=JSON.parse(r.result); }catch(err){ alert("That file isn't valid JSON."); return; }
+    if(!Array.isArray(imported)||!imported.length||!imported.every(c=>c&&typeof c.id==="string"&&typeof c.acr==="string")){
+      alert("That doesn't look like a CoPilot export — expected a list of pipeline entries."); return;
+    }
+    if(confirm(`Replace your current pipeline (${data.length} entries) with the imported file (${imported.length} entries)? This overwrites current statuses, notes, and drafts here.`)){
+      data=imported; save(); tileFilter=null; renderDash(); renderPipe();
+    }
+  };
+  r.readAsText(f); e.target.value="";
+});
+document.getElementById("icsBtn").addEventListener("click",()=>{
+  const icsEsc=s=>String(s||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");
+  const stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+  const evs=data.filter(c=>c.dl&&!["missed","skipped"].includes(c.status)).map(c=>{
+    const d=c.dl.replace(/-/g,""); const nd=new Date(c.dl+"T00:00:00"); nd.setDate(nd.getDate()+1);
+    const d2=nd.toISOString().slice(0,10).replace(/-/g,"");
+    return ["BEGIN:VEVENT","UID:"+c.id+"@conference-copilot","DTSTAMP:"+stamp,
+      "DTSTART;VALUE=DATE:"+d,"DTEND;VALUE=DATE:"+d2,
+      "SUMMARY:"+icsEsc("⏰ "+c.acr+" submission deadline"+(c.approx?" (verify)":"")),
+      "DESCRIPTION:"+icsEsc(c.name+(c.url?"\n"+c.url:"")+"\nStatus: "+c.status+(c.notes?"\n"+c.notes:"")),
+      "END:VEVENT"].join("\r\n");
+  });
+  if(!evs.length){ alert("No dated deadlines to export."); return; }
+  dl("copilot-deadlines.ics",["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Conference CoPilot//EN",...evs,"END:VCALENDAR"].join("\r\n"),"text/calendar");
 });
 document.getElementById("resetBtn").addEventListener("click",()=>{
   if(confirm("Replace your edits with the original researched list?")){ data=structuredClone(SEED); save(); renderDash(); renderPipe(); }
