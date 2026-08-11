@@ -15,7 +15,7 @@ else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
     }
   });
   if(changed) save(); }
-function save(){ try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} }
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
 function days(d){ if(!d) return null; return Math.round((new Date(d+"T00:00:00")-TODAY)/864e5) }
 function fmt(d){ if(!d) return "TBA"; const dt=new Date(d+"T00:00:00"); return dt.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) }
 function urg(n){ if(n===null) return {cls:"",label:"date TBA"}; if(n<0) return {cls:"",label:"closed"}; if(n<=7) return {cls:"crit",label:n+"d left — critical"}; if(n<=21) return {cls:"warn",label:n+"d left"}; return {cls:"good",label:n+"d left"} }
@@ -318,3 +318,55 @@ document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",a
   catch(e){ b.textContent="Select & copy manually" }
 }));
 renderDash(); renderPipe();
+
+// ---- optional cloud sync (Supabase) — active only when config.js sets window.COPILOT_SUPABASE ----
+let sb=null,sbUser=null,pushTimer=null;
+function pushCloud(now){
+  if(!sb||!sbUser) return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(async()=>{
+    try{
+      const {error}=await sb.from("user_pipelines").upsert({user_id:sbUser.id,data:data,updated_at:new Date().toISOString()});
+      if(error) throw error;
+    }catch(e){ console.warn("CoPilot cloud push failed:",e.message||e); }
+  },now?0:1500);
+}
+async function pullCloud(){
+  try{
+    const {data:row,error}=await sb.from("user_pipelines").select("data").eq("user_id",sbUser.id).maybeSingle();
+    if(error) throw error;
+    if(row&&Array.isArray(row.data)&&row.data.length){
+      data=row.data; try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}
+      tileFilter=null; renderDash(); renderPipe();
+    }else if(data.length&&confirm("No cloud pipeline on this account yet — upload this device's data ("+data.length+" entries)?")){
+      pushCloud(true);
+    }
+  }catch(e){ console.warn("CoPilot cloud pull failed:",e.message||e); }
+}
+(async function initCloud(){
+  const cfg=window.COPILOT_SUPABASE, el=document.getElementById("acct");
+  if(!cfg||!cfg.url||!cfg.anonKey||!el) return; // localStorage-only mode
+  let createClient;
+  try{ ({createClient}=await import("https://esm.sh/@supabase/supabase-js@2")); }
+  catch(e){ console.warn("CoPilot cloud: supabase-js failed to load:",e.message||e); return; }
+  sb=createClient(cfg.url,cfg.anonKey);
+  el.hidden=false;
+  const renderAcct=()=>{
+    el.innerHTML=sbUser
+      ? `<span class="pill good">☁ synced · ${esc(sbUser.email)}</span><button class="btn" id="signOut">Sign out</button>`
+      : `<button class="btn" id="signIn">☁ Sign in to sync across devices</button>`;
+    const si=document.getElementById("signIn"),so=document.getElementById("signOut");
+    if(si) si.addEventListener("click",async()=>{
+      const email=prompt("Email for the magic sign-in link:"); if(!email) return;
+      const {error}=await sb.auth.signInWithOtp({email:email.trim(),options:{emailRedirectTo:location.origin+location.pathname}});
+      alert(error?("Sign-in failed: "+error.message):"Check your inbox and open the sign-in link on this device.");
+    });
+    if(so) so.addEventListener("click",()=>sb.auth.signOut());
+  };
+  renderAcct();
+  sb.auth.onAuthStateChange((_evt,session)=>{
+    sbUser=session&&session.user||null;
+    renderAcct();
+    if(sbUser) pullCloud();
+  });
+})();

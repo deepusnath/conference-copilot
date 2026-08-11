@@ -2,7 +2,7 @@
 import {readFileSync} from "node:fs";
 import {execFileSync} from "node:child_process";
 
-for(const f of ["seed-data.js","app.js"])
+for(const f of ["seed-data.js","app.js","config.js"])
   execFileSync(process.execPath,["--check",f],{stdio:"inherit"});
 
 (0,eval)(readFileSync("seed-data.js","utf8")+"\nglobalThis.__d={SEED,STATUSES,TIERS,WSABS};");
