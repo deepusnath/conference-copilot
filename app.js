@@ -15,7 +15,30 @@ else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
     }
   });
   if(changed) save(); }
-function save(){ try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
+
+// ---- researcher profile state (#14) + keyword matching engine (#15) ----
+const PKEY="cqe-profile-v1";
+let prof=null;
+try{ prof=JSON.parse(localStorage.getItem(PKEY))||null }catch(e){}
+if(!prof||!Array.isArray(prof.workstreams)) prof=structuredClone(DEFAULT_PROFILE);
+let RO=false; // read-only share view
+function saveProf(){ if(RO) return; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
+function wsGet(w){ return prof.workstreams.find(x=>x.w===w)||prof.workstreams[0]; }
+function computeFits(c){
+  const out=new Set((c.fits||[]).filter(w=>prof.workstreams.some(x=>x.w===w)));
+  const text=(c.acr+" "+c.name+" "+(c.why||"")+" "+(c.city||"")).toLowerCase();
+  const kw={};
+  prof.workstreams.forEach(ws=>{
+    const hits=(ws.keywords||[]).filter(k=>text.includes(k.toLowerCase()));
+    if(hits.length){ out.add(ws.w); if(!(c.fits||[]).includes(ws.w)) kw[ws.w]=hits; }
+  });
+  c.__kw=kw;
+  return [...out].sort();
+}
+function profText(){
+  return `${prof.name} \u2014 ${prof.headline}. Thesis: ${prof.thesis}. ${prof.guidance}`;
+}
+function save(){ if(RO) return; try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
 function days(d){ if(!d) return null; return Math.round((new Date(d+"T00:00:00")-TODAY)/864e5) }
 function fmt(d){ if(!d) return "TBA"; const dt=new Date(d+"T00:00:00"); return dt.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) }
 function urg(n){ if(n===null) return {cls:"",label:"date TBA"}; if(n<0) return {cls:"",label:"closed"}; if(n<=7) return {cls:"crit",label:n+"d left — critical"}; if(n<=21) return {cls:"warn",label:n+"d left"}; return {cls:"good",label:n+"d left"} }
@@ -61,11 +84,14 @@ function switchTab(name){
   ["dash","pipe","prof","play","match"].forEach(t=>document.getElementById("tab-"+t).hidden=(name!==t));
 }
 function renderMatch(w){
-  const ws=WS[w];
-  document.getElementById("matchTitle").textContent="Venue matches — "+ws.name;
-  document.getElementById("matchNote").textContent=ws.note;
-  const list=data.filter(c=>(c.fits||[]).includes(w));
+  const ws=wsGet(w);
+  document.getElementById("matchTitle").textContent="Venue matches \u2014 "+ws.label+": "+ws.short;
+  document.getElementById("matchNote").textContent=ws.matchNote||"";
+  const list=data.filter(c=>computeFits(c).includes(w));
   document.getElementById("matchList").innerHTML=groupedCards(list,"");
+  list.forEach(c=>{ const hits=c.__kw&&c.__kw[w];
+    if(hits){ const el=document.querySelector("#matchList #conf-"+CSS.escape(c.id)+" .why");
+      if(el) el.innerHTML+=` <span class="verify">keyword match: ${esc(hits.join(", "))}</span>`; } });
   bindCards("#matchList",()=>renderMatch(w));
   switchTab("match"); window.scrollTo({top:0});
 }
@@ -125,7 +151,7 @@ function card(c){
   const j=c.kind==="journal";
   return `<div class="conf" id="conf-${c.id}">
     <div class="top"><span class="acr">${esc(c.acr)}</span><span class="name">${esc(c.name)}</span>
-      ${(c.fits||[]).map(w=>`<span class="tag">W${w}</span>`).join("")}
+      ${computeFits(c).map(w=>`<span class="tag">W${w}</span>`).join("")}
       <span class="tag ${c.tier===1?"t1":""}">${j?"Journal":"Tier "+c.tier}</span></div>
     <div class="meta">
       <span>${esc(c.city)}</span>
@@ -147,16 +173,17 @@ function card(c){
 }
 
 function tailorPrompt(c,w){
-  const j=c.kind==="journal";
-  return `You are my Research Conference CoPilot (WRITER role). Tailor the master abstract below for a submission to ${c.name} (${c.acr})${j?"":" \u2014 "+c.city+", event "+fmt(c.event)+", deadline "+fmt(c.dl)}.\n\nRESEARCHER: ${PROFILE}\n\nVENUE: ${c.url||c.subUrl||"(look up the official site)"} \u2014 first fetch the venue's current CFP/author guidelines and follow its theme, track names, word limit, and required structure exactly. Flag the exact submission route (portal URL or email address) you find.\n\nMASTER ABSTRACT (workstream W${w}):\nTitle: ${WSABS[w].title}\nAuthors: ${WSABS[w].authors}\n${WSABS[w].abs}\n\nRULES: keep every claim faithful to the master \u2014 never invent findings, data, or results${w===2?" (this study has NO results until Dec 2026)":""}; keep it a ${j?"journal-ready":"conference"} abstract; return the tailored abstract, 5\u20138 keywords, the recommended track, and a submission checklist.`;
+  const j=c.kind==="journal", ws=wsGet(w);
+  return `You are my Research Conference CoPilot (WRITER role). Tailor the master abstract below for a submission to ${c.name} (${c.acr})${j?"":" \u2014 "+c.city+", event "+fmt(c.event)+", deadline "+fmt(c.dl)}.\n\nRESEARCHER: ${profText()}\n\nVENUE: ${c.url||c.subUrl||"(look up the official site)"} \u2014 first fetch the venue's current CFP/author guidelines and follow its theme, track names, word limit, and required structure exactly. Flag the exact submission route (portal URL or email address) you find.\n\nMASTER ABSTRACT (workstream ${ws.label}):\nTitle: ${ws.title}\nAuthors: ${ws.authors}\n${ws.abs}\n\nRULES: keep every claim faithful to the master \u2014 never invent findings, data, or results; keep it a ${j?"journal-ready":"conference"} abstract; return the tailored abstract, 5\u20138 keywords, the recommended track, and a submission checklist.`;
 }
 function emailBody(c,w,draft){
-  return `Dear ${c.acr} Organising Committee,\n\nPlease find below our abstract for consideration${c.kind==="journal"?"":" for "+c.name+(c.event?" ("+fmt(c.event)+")":"")}.\n\nTitle: ${WSABS[w].title}\nAuthors: ${WSABS[w].authors}\nAffiliation: Amrita School of Business, Bangalore, India\nCorresponding author: Deepu S. Nath (deepu@fayausa.com)\n\nAbstract:\n${draft}\n\nPlease let us know if any additional information or format is required.\n\nWith kind regards,\nDeepu S. Nath\nPhD Research Scholar, Amrita School of Business, Bangalore`;
+  const ws=wsGet(w);
+  return `Dear ${c.acr} Organising Committee,\n\nPlease find below our abstract for consideration${c.kind==="journal"?"":" for "+c.name+(c.event?" ("+fmt(c.event)+")":"")}.\n\nTitle: ${ws.title}\nAuthors: ${ws.authors}\nCorresponding author: ${prof.corr}\n\nAbstract:\n${draft}\n\nPlease let us know if any additional information or format is required.\n\nWith kind regards,\n${prof.name}`;
 }
 async function copyText(t,btn,label){ try{ await navigator.clipboard.writeText(t); const o=btn.textContent; btn.textContent="Copied \u2713"; setTimeout(()=>btn.textContent=label||o,1500);}catch(e){ alert("Copy failed \u2014 select and copy manually."); } }
 function openDraft(id,focusSubmit){
   const c=data.find(x=>x.id===id); if(!c) return;
-  const wsOpts=(c.fits&&c.fits.length?c.fits:[2]);
+  const wsOpts=computeFits(c); if(!wsOpts.length&&prof.workstreams.length) wsOpts.push(prof.workstreams[0].w);
   let w=c.draftWs&&wsOpts.includes(c.draftWs)?c.draftWs:wsOpts[0];
   const d=document.createElement("dialog"); d.style.maxWidth="640px";
   const route=c.sub==="portal"
@@ -165,7 +192,7 @@ function openDraft(id,focusSubmit){
   d.innerHTML=`<h2 style="margin:0 0 2px">${esc(c.acr)} \u2014 draft &amp; submit</h2>
     <p style="margin:0 0 10px;color:var(--muted);font-size:13px">${esc(c.name)}</p>
     <label style="font-size:12.5px;font-weight:600">Paper (workstream)</label>
-    <select id="dWs" style="font:inherit;margin:4px 0 8px;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--ground);color:var(--ink)">${wsOpts.map(x=>`<option value="${x}" ${x===w?"selected":""}>W${x} \u2014 ${esc(WSABS[x].title.slice(0,60))}\u2026</option>`).join("")}</select>
+    <select id="dWs" style="font:inherit;margin:4px 0 8px;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--ground);color:var(--ink)">${wsOpts.map(x=>`<option value="${x}" ${x===w?"selected":""}>${esc(wsGet(x).label)} \u2014 ${esc(wsGet(x).title.slice(0,60))}\u2026</option>`).join("")}</select>
     <textarea id="dAbs" style="width:100%;min-height:180px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--ground);color:var(--ink)"></textarea>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">
       <button type="button" class="btn" id="dCopy">Copy abstract</button>
@@ -183,7 +210,7 @@ function openDraft(id,focusSubmit){
     </div>`;
   document.body.appendChild(d); d.showModal();
   const ta=d.querySelector("#dAbs");
-  const setDraft=()=>{ ta.value=(c.drafts&&c.drafts[w])||WSABS[w].title+"\n\n"+WSABS[w].abs; };
+  const setDraft=()=>{ ta.value=(c.drafts&&c.drafts[w])||wsGet(w).title+"\n\n"+wsGet(w).abs; };
   setDraft();
   ta.addEventListener("input",()=>{ c.drafts=c.drafts||{}; c.drafts[w]=ta.value; c.draftWs=w; save(); });
   d.querySelector("#dWs").addEventListener("change",e=>{ w=+e.target.value; c.draftWs=w; setDraft(); save(); });
@@ -194,7 +221,7 @@ function openDraft(id,focusSubmit){
   d.querySelector("#dMailto").addEventListener("click",()=>{
     const to=d.querySelector("#dTo").value.trim();
     if(!to){ alert("Fill the To address from the official CFP first \u2014 never guess a submission address."); return; }
-    location.href="mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent("Abstract submission \u2014 "+c.acr+": "+WSABS[w].title)+"&body="+encodeURIComponent(emailBody(c,w,ta.value).slice(0,1800));
+    location.href="mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent("Abstract submission \u2014 "+c.acr+": "+wsGet(w).title)+"&body="+encodeURIComponent(emailBody(c,w,ta.value).slice(0,1800));
   });
   d.querySelector("#dClose").addEventListener("click",()=>d.close());
   d.addEventListener("close",()=>d.remove());
@@ -206,7 +233,6 @@ document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("clic
   switchTab(b.dataset.tab);
 }));
 // find-venues buttons on profile workstreams + match page back button
-document.querySelectorAll(".matchbtn").forEach(b=>b.addEventListener("click",()=>renderMatch(+b.dataset.ws)));
 document.getElementById("backToProf").addEventListener("click",()=>switchTab("prof"));
 // keyboard activation for clickable deadline rows
 document.addEventListener("keydown",e=>{
@@ -246,7 +272,7 @@ document.getElementById("importFile").addEventListener("change",e=>{
       if(confirm(`Scout digest ${imported.date||""}: add ${fresh.length} new venue(s)`+(changed.length?`, update ${changed.length} deadline(s)`:"")+`?`)){
         fresh.forEach(v=>data.push({approx:true,sub:"verify",...v,status:"watching",notes:""}));
         changed.forEach(({cur,v})=>{ cur.notes=(cur.notes?cur.notes+"\n":"")+`Deadline changed ${cur.dl||"?"} → ${v.dl} (scout ${imported.date||""})`; cur.dl=v.dl; cur.approx=v.approx!==false; });
-        save(); renderDash(); renderPipe();
+        save(); renderDash(); renderPipe(); renderProfile();
       }
       return;
     }
@@ -327,15 +353,26 @@ function pushCloud(now){
   clearTimeout(pushTimer);
   pushTimer=setTimeout(async()=>{
     try{
-      const {error}=await sb.from("user_pipelines").upsert({user_id:sbUser.id,data:data,updated_at:new Date().toISOString()});
+      const payload={user_id:sbUser.id,data:data,updated_at:new Date().toISOString()};
+      if(window.__profCol!==false) payload.profile=prof;
+      let {error}=await sb.from("user_pipelines").upsert(payload);
+      if(error&&/profile/i.test(error.message||"")&&window.__profCol!==false){
+        window.__profCol=false; console.warn("profile column missing - run migration 002");
+        ({error}=await sb.from("user_pipelines").upsert({user_id:sbUser.id,data:data,updated_at:new Date().toISOString()}));
+      }
       if(error) throw error;
     }catch(e){ console.warn("CoPilot cloud push failed:",e.message||e); }
   },now?0:1500);
 }
 async function pullCloud(){
   try{
-    const {data:row,error}=await sb.from("user_pipelines").select("data").eq("user_id",sbUser.id).maybeSingle();
+    let {data:row,error}=await sb.from("user_pipelines").select("data,profile").eq("user_id",sbUser.id).maybeSingle();
+    if(error&&/profile/i.test(error.message||"")){
+      window.__profCol=false; console.warn("profile column missing - run migration 002");
+      ({data:row,error}=await sb.from("user_pipelines").select("data").eq("user_id",sbUser.id).maybeSingle());
+    }
     if(error) throw error;
+    if(row&&row.profile&&Array.isArray(row.profile.workstreams)){ prof=row.profile; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} renderProfile(); }
     if(row&&Array.isArray(row.data)&&row.data.length){
       data=row.data; try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}
       tileFilter=null; renderDash(); renderPipe();
@@ -412,3 +449,135 @@ function renderQueue(feed){
     renderQueue(feed);
   }));
 }
+
+// ---- dynamic researcher profile tab (#14) ----
+function renderProfile(){
+  const B=document.getElementById("profBody"); if(!B) return;
+  B.innerHTML=`<div class="prose">
+    <h2>${esc(prof.name)}</h2>
+    <p>${esc(prof.headline)}<br>${esc(prof.guidance)}</p>
+    <h2>Thesis</h2>
+    <p><b>${esc(prof.thesis)}.</b> ${esc(prof.thesisDesc)}</p>
+    <p>${prof.chain.map(x=>`<span class="pill acc">${esc(x)}</span>`).join(" \u2192 ")}</p>
+    <div class="editbtns"><button class="btn" id="editProf">Edit profile</button><button class="btn" id="addWs">Add workstream</button>${sb?`<button class="btn" id="shareBtn">Share read-only link</button>`:""}</div>
+  </div>
+  <h2>Workstreams \u2192 one thesis</h2>`+
+  prof.workstreams.map(ws=>`<div class="conf"><div class="top"><span class="acr">${esc(ws.label)}</span><span class="name">${esc(ws.short)} </span><span class="pill ${esc(ws.tagCls||"")}">${esc(ws.tag||"")}</span></div>
+    <div class="why">${esc(ws.desc||"")}</div>
+    <div class="row2"><button type="button" class="btn matchbtn" data-ws="${ws.w}">Find venues for this paper \u2192</button>
+    <button type="button" class="btn wsedit editbtns" style="margin:0" data-ws="${ws.w}">Edit</button></div></div>`).join("")+
+  `<div class="prose"><h2>Execution roadmap</h2><p>${esc(prof.roadmap)}</p>
+   <h2>Conference track record</h2><p>${esc(prof.record)}</p></div>`;
+  B.querySelectorAll(".matchbtn").forEach(b=>b.addEventListener("click",()=>renderMatch(+b.dataset.ws)));
+  B.querySelectorAll(".wsedit").forEach(b=>b.addEventListener("click",()=>editWsDialog(+b.dataset.ws)));
+  const ep=document.getElementById("editProf"); if(ep) ep.addEventListener("click",editProfileDialog);
+  const aw=document.getElementById("addWs"); if(aw) aw.addEventListener("click",()=>editWsDialog(null));
+  const sh=document.getElementById("shareBtn"); if(sh) sh.addEventListener("click",shareDialog);
+}
+function fld(label,id,val,rows){ return `<label style="font-size:12.5px;font-weight:600;display:block;margin:8px 0 3px">${label}</label>`+
+  (rows?`<textarea id="${id}" rows="${rows}">${esc(val||"")}</textarea>`:`<input id="${id}" style="width:100%;font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--ground);color:var(--ink)" value="${esc(val||"")}">`);
+}
+function editProfileDialog(){
+  const d=document.createElement("dialog"); d.style.maxWidth="640px";
+  d.innerHTML=`<h2 style="margin:0 0 8px">Edit researcher profile</h2>
+    ${fld("Name","pName",prof.name)}${fld("Headline (role, institution, contact)","pHead",prof.headline,2)}
+    ${fld("Guidance (supervisors, committee)","pGuide",prof.guidance,2)}${fld("Thesis title","pThesis",prof.thesis)}
+    ${fld("Thesis description","pDesc",prof.thesisDesc,3)}${fld("Causal chain (\u2192-separated)","pChain",prof.chain.join(" \u2192 "))}
+    ${fld("Roadmap","pRoad",prof.roadmap,3)}${fld("Track record","pRec",prof.record,3)}
+    ${fld("Correspondence line (for submission emails)","pCorr",prof.corr)}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="pCancel">Cancel</button><button class="btn primary" id="pSave">Save</button></div>`;
+  document.body.appendChild(d); d.showModal();
+  d.querySelector("#pCancel").addEventListener("click",()=>d.close());
+  d.querySelector("#pSave").addEventListener("click",()=>{
+    const v=id=>d.querySelector("#"+id).value.trim();
+    Object.assign(prof,{name:v("pName"),headline:v("pHead"),guidance:v("pGuide"),thesis:v("pThesis"),
+      thesisDesc:v("pDesc"),chain:v("pChain").split("\u2192").map(s=>s.trim()).filter(Boolean),
+      roadmap:v("pRoad"),record:v("pRec"),corr:v("pCorr")});
+    saveProf(); renderProfile(); d.close();
+  });
+  d.addEventListener("close",()=>d.remove());
+}
+function editWsDialog(w){
+  const isNew=w===null;
+  const ws=isNew?{w:Math.max(0,...prof.workstreams.map(x=>x.w))+1,label:"",short:"",tag:"planned",tagCls:"",desc:"",matchNote:"",authors:prof.name+" et al.",title:"",abs:"",keywords:[]}:wsGet(w);
+  const d=document.createElement("dialog"); d.style.maxWidth="640px";
+  d.innerHTML=`<h2 style="margin:0 0 8px">${isNew?"Add":"Edit"} workstream</h2>
+    ${fld("Label (e.g. W5 \u00b7 New direction)","wLabel",ws.label)}${fld("One-line summary","wShort",ws.short)}
+    ${fld("Status tag (e.g. drafting)","wTag",ws.tag)}${fld("Description","wDesc",ws.desc,3)}
+    ${fld("Match-page note","wNote",ws.matchNote,2)}${fld("Paper title","wTitle",ws.title,2)}
+    ${fld("Authors","wAuth",ws.authors)}${fld("Master abstract","wAbs",ws.abs,7)}
+    ${fld("Matching keywords (comma-separated)","wKw",(ws.keywords||[]).join(", "))}
+    <div style="display:flex;gap:8px;margin-top:14px">${isNew?"":`<button class="btn" id="wDel">Delete</button>`}<span style="flex:1"></span><button class="btn" id="wCancel">Cancel</button><button class="btn primary" id="wSave">Save</button></div>`;
+  document.body.appendChild(d); d.showModal();
+  d.querySelector("#wCancel").addEventListener("click",()=>d.close());
+  const del=d.querySelector("#wDel");
+  if(del) del.addEventListener("click",()=>{
+    if(confirm(`Delete ${ws.label}? Venue fit tags pointing at it stop matching.`)){
+      prof.workstreams=prof.workstreams.filter(x=>x.w!==ws.w); saveProf(); renderProfile(); d.close();
+    }});
+  d.querySelector("#wSave").addEventListener("click",()=>{
+    const v=id=>d.querySelector("#"+id).value.trim();
+    Object.assign(ws,{label:v("wLabel")||("W"+ws.w),short:v("wShort"),tag:v("wTag"),desc:v("wDesc"),
+      matchNote:v("wNote"),title:v("wTitle"),authors:v("wAuth"),abs:v("wAbs"),
+      keywords:v("wKw").split(",").map(s=>s.trim()).filter(Boolean)});
+    if(isNew) prof.workstreams.push(ws);
+    saveProf(); renderProfile(); d.close();
+  });
+  d.addEventListener("close",()=>d.remove());
+}
+// ---- read-only share links (#16) ----
+async function shareDialog(){
+  if(!sb||!sbUser){ alert("Sign in first."); return; }
+  const d=document.createElement("dialog"); d.style.maxWidth="560px";
+  d.innerHTML=`<h2 style="margin:0 0 8px">Read-only share links</h2>
+    <p style="font-size:13px;color:var(--muted)">A link shows your pipeline and profile, view-only. Revoke any time. Requires migration 002 on the backend.</p>
+    <div id="shList" style="font-size:13px">Loading\u2026</div>
+    <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary" id="shNew">Create link</button><span style="flex:1"></span><button class="btn" id="shClose">Close</button></div>`;
+  document.body.appendChild(d); d.showModal();
+  d.querySelector("#shClose").addEventListener("click",()=>d.close());
+  d.addEventListener("close",()=>d.remove());
+  const refresh=async()=>{
+    const L=d.querySelector("#shList");
+    try{
+      const {data:rows,error}=await sb.from("shares").select("token,revoked,created_at").order("created_at",{ascending:false});
+      if(error) throw error;
+      L.innerHTML=rows.length?rows.map(r=>{
+        const link=location.origin+location.pathname+"#share="+r.token;
+        return `<div class="dl-row" style="margin-bottom:6px"><span class="who mono" style="font-size:11.5px;overflow:hidden;text-overflow:ellipsis">${r.revoked?"<s>"+link+"</s>":link}</span>
+          ${r.revoked?'<span class="pill">revoked</span>':`<button class="btn shCopy" data-l="${link}">Copy</button><button class="btn shRev" data-t="${r.token}">Revoke</button>`}</div>`;
+      }).join(""):"<p>No links yet.</p>";
+      L.querySelectorAll(".shCopy").forEach(b=>b.addEventListener("click",e=>copyText(e.target.dataset.l,e.target,"Copy")));
+      L.querySelectorAll(".shRev").forEach(b=>b.addEventListener("click",async e=>{
+        await sb.from("shares").update({revoked:true}).eq("token",e.target.dataset.t); refresh();
+      }));
+    }catch(e){ L.innerHTML="<p class='verify'>Backend not ready: "+esc(e.message||String(e))+" \u2014 run supabase/migrations/002_profile_shares.sql.</p>"; }
+  };
+  d.querySelector("#shNew").addEventListener("click",async()=>{
+    try{ const {error}=await sb.from("shares").insert({user_id:sbUser.id}); if(error) throw error; refresh(); }
+    catch(e){ alert("Could not create link: "+(e.message||e)); }
+  });
+  refresh();
+}
+(async function initShareView(){
+  const m=/[#&]share=([0-9a-f-]{36})/.exec(location.hash);
+  if(!m) return;
+  const cfg=window.COPILOT_SUPABASE; if(!cfg||!cfg.url) return;
+  try{
+    const r=await fetch(cfg.url+"/rest/v1/rpc/get_shared_pipeline",{method:"POST",
+      headers:{apikey:cfg.anonKey,Authorization:"Bearer "+cfg.anonKey,"Content-Type":"application/json"},
+      body:JSON.stringify({share_token:m[1]})});
+    const payload=await r.json();
+    if(!r.ok||!payload||!Array.isArray(payload.data)) throw new Error(payload&&payload.message||"link invalid or revoked");
+    RO=true; document.body.classList.add("ro");
+    data=payload.data;
+    if(payload.profile&&Array.isArray(payload.profile.workstreams)) prof=payload.profile;
+    const b=document.createElement("div"); b.className="robanner";
+    b.textContent="Read-only view shared from "+prof.name+"'s Conference CoPilot.";
+    document.querySelector("header.page").prepend(b);
+    renderDash(); renderPipe(); renderProfile();
+  }catch(e){
+    const b=document.createElement("div"); b.className="robanner";
+    b.textContent="This share link is invalid, revoked, or the backend migration hasn't run yet ("+(e.message||e)+").";
+    document.querySelector("header.page").prepend(b);
+  }
+})();

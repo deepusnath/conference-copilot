@@ -5,8 +5,9 @@ import {execFileSync} from "node:child_process";
 for(const f of ["seed-data.js","app.js","config.js"])
   execFileSync(process.execPath,["--check",f],{stdio:"inherit"});
 
-(0,eval)(readFileSync("seed-data.js","utf8")+"\nglobalThis.__d={SEED,STATUSES,TIERS,WSABS};");
-const {SEED,STATUSES,TIERS,WSABS}=globalThis.__d;
+(0,eval)(readFileSync("seed-data.js","utf8")+"\nglobalThis.__d={SEED,STATUSES,TIERS,DEFAULT_PROFILE};");
+const {SEED,STATUSES,TIERS,DEFAULT_PROFILE}=globalThis.__d;
+const WSABS=Object.fromEntries(DEFAULT_PROFILE.workstreams.map(x=>[x.w,x]));
 
 const errs=[]; const ids=new Set();
 for(const c of SEED){

@@ -111,3 +111,9 @@ dialog input,dialog select{width:100%;font:inherit;font-size:14px;border:1px sol
 @media (max-width:640px){ .dl-row .date{width:auto} h1{font-size:24px} }
 
 .acct{display:flex;gap:8px;align-items:center;margin:12px 0 0;font-size:13px}
+
+body.ro .bar,body.ro .conf .row2,body.ro .conf textarea,body.ro #acct,body.ro #rqH,body.ro #rqList,body.ro .editbtns{display:none}
+body.ro select.status{pointer-events:none;opacity:.75}
+.editbtns{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.robanner{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);border-radius:10px;padding:10px 14px;margin:0 0 18px;font-size:13.5px}
+dialog textarea{width:100%;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--ground);color:var(--ink)}
