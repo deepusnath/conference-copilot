@@ -1,22 +1,15 @@
-// CI sanity checks: script syntax + seed-data invariants.
-import {readFileSync,writeFileSync} from "node:fs";
+// CI sanity checks: module syntax + seed-data invariants + bundle build.
+import {readFileSync} from "node:fs";
 import {execFileSync} from "node:child_process";
 
-const html=readFileSync("index.html","utf8");
-const m=html.match(/<script>([\s\S]*?)<\/script>/);
-if(!m) throw new Error("no inline <script> found");
-writeFileSync("/tmp/copilot-app.js",m[1]);
-execFileSync(process.execPath,["--check","/tmp/copilot-app.js"],{stdio:"inherit"});
+for(const f of ["seed-data.js","app.js"])
+  execFileSync(process.execPath,["--check",f],{stdio:"inherit"});
 
-const store={};
-globalThis.localStorage={getItem:k=>store[k]??null,setItem:(k,v)=>store[k]=v};
-const cut=m[1].indexOf("// tabs");
-(0,eval)(m[1].slice(0,cut)+"\nglobalThis.__d={data,STATUSES,TIERS,WSABS};");
-const {data,STATUSES,TIERS,WSABS}=globalThis.__d;
+(0,eval)(readFileSync("seed-data.js","utf8")+"\nglobalThis.__d={SEED,STATUSES,TIERS,WSABS};");
+const {SEED,STATUSES,TIERS,WSABS}=globalThis.__d;
 
-const errs=[];
-const ids=new Set();
-for(const c of data){
+const errs=[]; const ids=new Set();
+for(const c of SEED){
   if(ids.has(c.id)) errs.push(`duplicate id ${c.id}`);
   ids.add(c.id);
   if(!TIERS[c.tier]) errs.push(`${c.id}: bad tier ${c.tier}`);
@@ -26,4 +19,6 @@ for(const c of data){
   if(c.sub && !["portal","verify"].includes(c.sub)) errs.push(`${c.id}: bad sub route ${c.sub}`);
 }
 if(errs.length){ console.error("DATA ERRORS:\n"+errs.join("\n")); process.exit(1); }
-console.log(`OK — syntax valid, ${data.length} entries, invariants hold.`);
+
+execFileSync(process.execPath,["scripts/bundle.mjs"],{stdio:"inherit"});
+console.log(`OK — modules valid, ${SEED.length} seed entries, invariants hold, bundle builds.`);
