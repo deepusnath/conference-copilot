@@ -272,8 +272,7 @@ document.getElementById("importFile").addEventListener("change",e=>{
       if(confirm(`Scout digest ${imported.date||""}: add ${fresh.length} new venue(s)`+(changed.length?`, update ${changed.length} deadline(s)`:"")+`?`)){
         fresh.forEach(v=>data.push({approx:true,sub:"verify",...v,status:"watching",notes:""}));
         changed.forEach(({cur,v})=>{ cur.notes=(cur.notes?cur.notes+"\n":"")+`Deadline changed ${cur.dl||"?"} → ${v.dl} (scout ${imported.date||""})`; cur.dl=v.dl; cur.approx=v.approx!==false; });
-        save(); renderDash(); renderPipe(); renderProfile();
-      }
+        save();       }
       return;
     }
     if(!Array.isArray(imported)||!imported.length||!imported.every(validEntry)){
@@ -389,6 +388,7 @@ async function pullCloud(){
   catch(e){ console.warn("CoPilot cloud: supabase-js failed to load:",e.message||e); return; }
   sb=createClient(cfg.url,cfg.anonKey);
   el.hidden=false;
+  renderProfile();
   const renderAcct=()=>{
     el.innerHTML=sbUser
       ? `<span class="pill good">☁ synced · ${esc(sbUser.email)}</span><button class="btn" id="signOut">Sign out</button>`
@@ -581,3 +581,6 @@ async function shareDialog(){
     document.querySelector("header.page").prepend(b);
   }
 })();
+
+// boot — after all declarations above
+renderDash(); renderPipe(); renderProfile();
