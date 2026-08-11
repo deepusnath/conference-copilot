@@ -143,6 +143,7 @@ dialog input,dialog select{width:100%;font:inherit;font-size:14px;border:1px sol
       <option value="1">Tier 1 · SDT &amp; motivation core</option>
       <option value="2">Tier 2 · Education research &amp; EdTech</option>
       <option value="3">Tier 3 · EDAS / indexed engineering-ed</option>
+      <option value="4">Journal targets</option>
     </select>
     <select id="fStatus" aria-label="Filter by status"><option value="">All statuses</option></select>
     <span class="spacer"></span>
@@ -167,13 +168,13 @@ dialog input,dialog select{width:100%;font:inherit;font-size:14px;border:1px sol
 
   <h2>Four workstreams → one thesis</h2>
   <div class="conf"><div class="top"><span class="acr">W1 · Map the field</span><span class="name">Bibliometric + TCM-ADO analysis of 971 peer-reviewed articles (RQ1)</span><span class="pill good">under review</span></div>
-    <div class="why">“Gamification in learning and work motivation through the lens of SDT” — submitted to <b>Computers in Human Behavior</b>; now being refined on journal feedback. Establishes the field map and the longitudinal/cultural evidence gap.</div></div>
+    <div class="why">“Gamification in learning and work motivation through the lens of SDT” — submitted to <b>Computers in Human Behavior</b>; now being refined on journal feedback. Establishes the field map and the longitudinal/cultural evidence gap.</div><div class="row2"><button type="button" class="btn matchbtn" data-ws="1">Find venues for this paper →</button></div></div>
   <div class="conf"><div class="top"><span class="acr">W2 · Test the mechanism</span><span class="name">Structured Autonomy with Dialogue Scaffolding — 30-day sprint RCT (RQ2)</span><span class="pill warn">launches Oct 2026</span></div>
-    <div class="why">Two-arm RCT on the Authority–Autonomy–Dialogue architecture; measures at Day 0/10/20/30; platform data; SEM + mediation. Design drafted, being refined with input invited from Prof. Richard Ryan. <b>No results exist yet — nothing may be claimed as findings before analysis (Dec 2026).</b></div></div>
+    <div class="why">Two-arm RCT on the Authority–Autonomy–Dialogue architecture; measures at Day 0/10/20/30; platform data; SEM + mediation. Design drafted, being refined with input invited from Prof. Richard Ryan. <b>No results exist yet — nothing may be claimed as findings before analysis (Dec 2026).</b></div><div class="row2"><button type="button" class="btn matchbtn" data-ws="2">Find venues for this paper →</button></div></div>
   <div class="conf"><div class="top"><span class="acr">W3 · Critique the system</span><span class="name">3C paper — Complacency, Competency, Commercialisation intent (RQ3)</span><span class="pill good">submission-ready</span></div>
-    <div class="why">How compliance-oriented, standardised, controlling structures frustrate autonomy, competence and relatedness (survey n=142, Kerala context). Targets: <b>PAN-IIM WMC 2026</b> (deadline 20 Aug), journal <b>Higher Education for the Future</b> (SAGE), backup <b>IHERC 2026</b>, New Delhi.</div></div>
+    <div class="why">How compliance-oriented, standardised, controlling structures frustrate autonomy, competence and relatedness (survey n=142, Kerala context). Targets: <b>PAN-IIM WMC 2026</b> (deadline 20 Aug), journal <b>Higher Education for the Future</b> (SAGE), backup <b>IHERC 2026</b>, New Delhi.</div><div class="row2"><button type="button" class="btn matchbtn" data-ws="3">Find venues for this paper →</button></div></div>
   <div class="conf"><div class="top"><span class="acr">W4 · Study the practice</span><span class="name">µLearn case study — gamification as need-supportive scaffolding (RQ4)</span><span class="pill warn">data from Sep 2026</span></div>
-    <div class="why">40 participants (success stories + randomly picked dropout cases): what distinguishes sustained contributors from disengagers across choice, proof-of-work, karma/recognition, peers/mentors, leadership roles. Questionnaire in progress.</div></div>
+    <div class="why">40 participants (success stories + randomly picked dropout cases): what distinguishes sustained contributors from disengagers across choice, proof-of-work, karma/recognition, peers/mentors, leadership roles. Questionnaire in progress.</div><div class="row2"><button type="button" class="btn matchbtn" data-ws="4">Find venues for this paper →</button></div></div>
 
   <div class="prose">
     <h2>Execution roadmap</h2>
@@ -183,6 +184,13 @@ dialog input,dialog select{width:100%;font:inherit;font-size:14px;border:1px sol
     <p><b>CESI 2025, New Delhi</b> (Dec 5–7): presented “Self-Determination Theory in Large-Scale Peer Learning Ecosystems” — SEM linking peer-learning climate, autonomy support, need satisfaction, autonomous motivation, engagement/persistence (n=207).<br>
     <b>SDT2026, Geneva</b> (Jun 30–Jul 3): participated; connected with <b>Prof. Richard Ryan</b>, who offered guidance and connected researchers interested in µLearn as a longitudinal SDT test bed.</p>
   </div>
+</section>
+
+<section id="tab-match" hidden>
+  <div class="chipbar"><button type="button" class="btn" id="backToProf">← Researcher profile</button></div>
+  <h2 id="matchTitle"></h2>
+  <p class="sub" id="matchNote"></p>
+  <div id="matchList"></div>
 </section>
 
 <section id="tab-play" hidden>
@@ -286,49 +294,74 @@ REGISTRAR (continuous): Maintain pipeline.json statuses (watching →
 
 <script>
 const STATUSES = ["watching","shortlisted","drafting","submitted","under review","accepted","rejected","registered","presented","missed","skipped"];
-const TIERS = {1:"Tier 1 · SDT & motivation core",2:"Tier 2 · Education research & EdTech",3:"Tier 3 · EDAS / engineering-ed (indexed)"};
+const TIERS = {1:"Tier 1 · SDT & motivation core",2:"Tier 2 · Education research & EdTech",3:"Tier 3 · EDAS / engineering-ed (indexed)",4:"Journal targets · rolling submissions"};
+const WS={
+ 1:{name:"W1 · Bibliometric + TCM-ADO (RQ1)",note:"Field-mapping / review paper. Currently under review at CHB — these are the venues for the revision's next home if needed, plus motivation-community conferences where a field-map talk lands well."},
+ 2:{name:"W2 · Structured Autonomy RCT (RQ2)",note:"Results arrive after the Dec 2026 analysis — venues with deadlines before that can only take the framework/WIP version, never findings. Results-ready targets are the ones with deadlines from Dec 2026 onward, plus the journals."},
+ 3:{name:"W3 · 3C systemic complacency paper (RQ3)",note:"Higher-education policy & management audience — India management academia and higher-ed policy journals, not the EdTech circuit."},
+ 4:{name:"W4 · µLearn case study (RQ4)",note:"Data from Sep 2026. Peer-learning, CSCL, and gamification venues; case-study-friendly journals."}
+};
 const SEED = [
  // ---- Tier 3: from the user's EDAS export (open now) ----
- {id:"icet26",acr:"ICET 2026",name:"12th Int'l Conf. on Education and Technology",city:"Malang, Indonesia",event:"2026-10-15",dl:"2026-08-13",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Most direct fit in your EDAS list — education + technology, e-learning tracks. Natural home for SDT-in-EdTech empirical work.",status:"shortlisted",notes:""},
- {id:"icastss26",acr:"iCAST-SS 2026",name:"Int'l Conf. on Applied Science & Technology — Social Sciences",city:"Surabaya, Indonesia",event:"2026-10-09",dl:"2026-08-23",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Online-education, social & behavioral science tracks — fits SDT survey/intervention studies.",status:"watching",notes:""},
- {id:"etecom26",acr:"ETECOM 2026",name:"Int'l Conf. on Emerging Trends in Engineering and Computing",city:"Paris, France (hybrid)",event:"2026-10-26",dl:"2026-08-27",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Online-education track; hybrid format keeps travel cost down.",status:"watching",notes:""},
- {id:"ideahci27",acr:"IDEA HCI 2027",name:"Int'l Conf. on Design, AI Generative, UI/UX and HCI",city:"Indonesia",event:"2027-02-08",dl:"2026-09-08",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Motivation-aware UX angle: SDT is the dominant framework for engagement in HCI. Deadline range Aug 8 – Sep 8 in EDAS.",status:"watching",notes:""},
- {id:"iceed26",acr:"ICEED 2026",name:"IEEE 15th Int'l Conf. on Engineering Education",city:"Kanazawa, Japan",event:"2026-11-25",dl:"2026-10-01",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"IEEE engineering-education venue — strong fit for SDT applied to engineering learners; Xplore-indexed.",status:"shortlisted",notes:""},
- {id:"dasa26",acr:"DASA'26",name:"Int'l Conf. on Decision Aid Sciences and Applications",city:"Bangkok, Thailand",event:"2026-12-27",dl:"2026-10-02",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Explicit online-education and social & behavioral science areas in its CFP.",status:"watching",notes:""},
- {id:"ietbhec27",acr:"IETBHEC'27",name:"5th Int'l Engineering, Technology, Business and Health Education Conf.",city:"Singapore",event:"2027-02-25",dl:"2026-12-15",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Education-centered multi-disciplinary venue; Singapore is an easy trip from Kerala.",status:"shortlisted",notes:""},
- {id:"iiphdw27",acr:"IIPhDW'27",name:"Int'l Interdisciplinary PhD Workshop",city:"Wismar, Germany",event:"2027-05-05",dl:"2026-12-01",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Built for doctoral students — feedback on your PhD design itself, not just findings.",status:"shortlisted",notes:""},
- {id:"isec27",acr:"ISEC'27",name:"IEEE Integrated STEM Education Conference",city:"Baltimore, USA",event:"2027-03-12",dl:"2027-01-15",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"IEEE STEM-education flagship on the US east coast; motivation papers are a staple here.",status:"watching",notes:""},
- {id:"technova27",acr:"TECHNOVA-GRACE 2027",name:"Int'l Graduate Conf. on Technology, Computing and Advanced Engineering",city:"Virtual",event:"2027-08-04",dl:"2026-09-15",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Graduate conference, fully virtual — zero-cost reps for early-stage chapters.",status:"watching",notes:""},
+ {id:"icet26",fits:[2, 4],acr:"ICET 2026",name:"12th Int'l Conf. on Education and Technology",city:"Malang, Indonesia",event:"2026-10-15",dl:"2026-08-13",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Most direct fit in your EDAS list — education + technology, e-learning tracks. Natural home for SDT-in-EdTech empirical work.",status:"shortlisted",notes:""},
+ {id:"icastss26",fits:[3, 4],acr:"iCAST-SS 2026",name:"Int'l Conf. on Applied Science & Technology — Social Sciences",city:"Surabaya, Indonesia",event:"2026-10-09",dl:"2026-08-23",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Online-education, social & behavioral science tracks — fits SDT survey/intervention studies.",status:"watching",notes:""},
+ {id:"etecom26",fits:[2],acr:"ETECOM 2026",name:"Int'l Conf. on Emerging Trends in Engineering and Computing",city:"Paris, France (hybrid)",event:"2026-10-26",dl:"2026-08-27",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Online-education track; hybrid format keeps travel cost down.",status:"watching",notes:""},
+ {id:"ideahci27",fits:[4],acr:"IDEA HCI 2027",name:"Int'l Conf. on Design, AI Generative, UI/UX and HCI",city:"Indonesia",event:"2027-02-08",dl:"2026-09-08",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Motivation-aware UX angle: SDT is the dominant framework for engagement in HCI. Deadline range Aug 8 – Sep 8 in EDAS.",status:"watching",notes:""},
+ {id:"iceed26",fits:[2],acr:"ICEED 2026",name:"IEEE 15th Int'l Conf. on Engineering Education",city:"Kanazawa, Japan",event:"2026-11-25",dl:"2026-10-01",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"IEEE engineering-education venue — strong fit for SDT applied to engineering learners; Xplore-indexed.",status:"shortlisted",notes:""},
+ {id:"dasa26",fits:[3],acr:"DASA'26",name:"Int'l Conf. on Decision Aid Sciences and Applications",city:"Bangkok, Thailand",event:"2026-12-27",dl:"2026-10-02",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Explicit online-education and social & behavioral science areas in its CFP.",status:"watching",notes:""},
+ {id:"ietbhec27",fits:[2, 3],acr:"IETBHEC'27",name:"5th Int'l Engineering, Technology, Business and Health Education Conf.",city:"Singapore",event:"2027-02-25",dl:"2026-12-15",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Education-centered multi-disciplinary venue; Singapore is an easy trip from Kerala.",status:"shortlisted",notes:""},
+ {id:"iiphdw27",fits:[1, 2, 3, 4],acr:"IIPhDW'27",name:"Int'l Interdisciplinary PhD Workshop",city:"Wismar, Germany",event:"2027-05-05",dl:"2026-12-01",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Built for doctoral students — feedback on your PhD design itself, not just findings.",status:"shortlisted",notes:""},
+ {id:"isec27",fits:[2],acr:"ISEC'27",name:"IEEE Integrated STEM Education Conference",city:"Baltimore, USA",event:"2027-03-12",dl:"2027-01-15",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"IEEE STEM-education flagship on the US east coast; motivation papers are a staple here.",status:"watching",notes:""},
+ {id:"technova27",fits:[2, 4],acr:"TECHNOVA-GRACE 2027",name:"Int'l Graduate Conf. on Technology, Computing and Advanced Engineering",city:"Virtual",event:"2027-08-04",dl:"2026-09-15",approx:true,tier:3,src:"EDAS export",url:"https://edas.info/listConferencesCFP.php",why:"Graduate conference, fully virtual — zero-cost reps for early-stage chapters.",status:"watching",notes:""},
  // ---- India management/higher-ed policy (3C paper venues) ----
- {id:"paniim26",acr:"PAN-IIM WMC 2026",name:"11th PAN-IIM World Management Conference",city:"IIM Shillong, India (hybrid)",event:"2026-11-27",dl:"2026-08-20",approx:false,tier:2,src:"Web research",url:"https://paniim2026.iimshillong.ac.in/",why:"3C paper target — Economics & Public Policy track; selected full papers considered for ABDC/Scopus journals. Notification Sep 15; registration Sep 18–Oct 20 (₹5,000+GST research scholars).",status:"drafting",notes:"Submission-ready docx prepared 11 Aug (3C-Framework-PANIIM-WMC2026.docx). Needs: co-author sign-off, similarity check, Nidhi email fix."},
- {id:"iherc26",acr:"IHERC 2026",name:"India Higher Education Research Conference",city:"New Delhi, India",event:"2026-12-26",dl:null,approx:true,tier:2,src:"Research deck (Aug 2026)",url:"",why:"Named in the August 2026 progress deck as backup venue for the 3C paper — CFP and deadline still to verify.",status:"watching",notes:""},
+ {id:"paniim26",fits:[3],acr:"PAN-IIM WMC 2026",name:"11th PAN-IIM World Management Conference",city:"IIM Shillong, India (hybrid)",event:"2026-11-27",dl:"2026-08-20",approx:false,tier:2,src:"Web research",url:"https://paniim2026.iimshillong.ac.in/",why:"3C paper target — Economics & Public Policy track; selected full papers considered for ABDC/Scopus journals. Notification Sep 15; registration Sep 18–Oct 20 (₹5,000+GST research scholars).",status:"drafting",notes:"Submission-ready docx prepared 11 Aug (3C-Framework-PANIIM-WMC2026.docx). Needs: co-author sign-off, similarity check, Nidhi email fix."},
+ {id:"iherc26",fits:[3],acr:"IHERC 2026",name:"India Higher Education Research Conference",city:"New Delhi, India",event:"2026-12-26",dl:null,approx:true,tier:2,src:"Research deck (Aug 2026)",url:"",why:"Named in the August 2026 progress deck as backup venue for the 3C paper — CFP and deadline still to verify.",status:"watching",notes:""},
  // ---- Tier 2: global education research & EdTech ----
- {id:"inted27",acr:"INTED2027",name:"21st Int'l Technology, Education and Development Conference",city:"Valencia, Spain",event:"2027-03-09",dl:"2026-11-26",approx:true,tier:2,src:"Web research",url:"https://iated.org/inted/",why:"IATED's spring venue: education + technology, very SDT-friendly, high acceptance — good momentum builder. Abstracts open ~autumn 2026.",status:"shortlisted",notes:""},
- {id:"edulearn27",acr:"EDULEARN27",name:"19th Int'l Conf. on Education and New Learning Technologies",city:"Palma, Spain",event:"2027-06-30",dl:"2027-03-25",approx:true,tier:2,src:"Web research",url:"https://iated.org/edulearn/",why:"IATED summer edition — same profile as INTED, later cycle.",status:"watching",notes:""},
- {id:"educon27",acr:"EDUCON 2027",name:"IEEE Global Engineering Education Conference",city:"Timişoara, Romania",event:"2027-04-20",dl:"2026-10-01",approx:true,tier:2,src:"Web research",url:"https://educon-conference.org/",why:"IEEE Education Society flagship for Region 8. 2026 cycle's abstract deadline was late Sept — expect the same; watch now.",status:"shortlisted",notes:""},
- {id:"fie27",acr:"FIE 2027",name:"IEEE Frontiers in Education Conference",city:"North America (TBA)",event:"2027-10-15",dl:"2027-01-26",approx:true,tier:2,src:"Web research",url:"https://fie-conference.org/",why:"Premier engineering-education research venue; motivation/SDT work is core FIE territory. Abstracts ~late Jan.",status:"watching",notes:""},
- {id:"lak27",acr:"LAK27",name:"17th Int'l Learning Analytics & Knowledge Conference",city:"TBA",event:"2027-03-15",dl:"2026-10-12",approx:true,tier:2,src:"Web research",url:"https://www.solaresearch.org/events/lak/lak27/",why:"If your SDT work touches trace data, dashboards, or engagement analytics, LAK is the top-tier target. Full-paper deadline historically ~mid-Oct.",status:"watching",notes:""},
- {id:"site27",acr:"SITE 2027",name:"Society for IT & Teacher Education 38th Annual",city:"Nashville, USA",event:"2027-03-15",dl:"2026-12-18",approx:true,tier:2,src:"Web research",url:"https://site.aace.org/conf/",why:"Teacher-education + technology; CFP opens 26 Oct 2026.",status:"watching",notes:""},
- {id:"aied27",acr:"AIED 2027",name:"Int'l Conf. on Artificial Intelligence in Education",city:"TBA",event:"2027-07-15",dl:"2027-02-01",approx:true,tier:2,src:"Web research",url:"https://iaied.org/",why:"Top AI-in-education venue; SDT-informed adaptive/motivational systems fit the main track.",status:"watching",notes:""},
- {id:"isls27",acr:"ISLS 2027",name:"Int'l Society of the Learning Sciences Annual Meeting",city:"TBA",event:"2027-06-15",dl:"2026-11-15",approx:true,tier:2,src:"Web research",url:"https://www.isls.org/",why:"Learning-sciences flagship (CSCL + ICLS); submissions typically due mid-November.",status:"watching",notes:""},
- {id:"aect27",acr:"AECT 2027",name:"AECT International Convention",city:"USA (TBA)",event:"2027-10-15",dl:"2027-02-16",approx:true,tier:2,src:"Web research",url:"https://www.aect.org/",why:"Educational communications & technology; 2026 proposals closed Feb — same window expected for 2027.",status:"watching",notes:""},
- {id:"iceri26",acr:"ICERI2026",name:"19th Int'l Conf. of Education, Research and Innovation",city:"Seville, Spain",event:"2026-11-09",dl:"2026-07-23",approx:false,tier:2,src:"Web research",url:"https://iated.org/iceri/",why:"Extended abstract deadline passed 23 Jul 2026 — but IATED often accepts late/virtual submissions; one email is worth it if you want a 2026 slot.",status:"missed",notes:""},
- {id:"tale26",acr:"TALE 2026",name:"IEEE Int'l Conf. on Teaching, Assessment and Learning for Engineering",city:"Pattaya, Thailand",event:"2026-12-02",dl:"2026-08-02",approx:false,tier:2,src:"EDAS + web",url:"https://tale-conference.org/2026",why:"Closed 2 Aug 2026 (extended). Flagship Asia-Pacific engineering-education venue — put TALE 2027 on the watchlist now.",status:"missed",notes:""},
+ {id:"inted27",fits:[2, 3, 4],acr:"INTED2027",name:"21st Int'l Technology, Education and Development Conference",city:"Valencia, Spain",event:"2027-03-09",dl:"2026-11-26",approx:true,tier:2,src:"Web research",url:"https://iated.org/inted/",why:"IATED's spring venue: education + technology, very SDT-friendly, high acceptance — good momentum builder. Abstracts open ~autumn 2026.",status:"shortlisted",notes:""},
+ {id:"edulearn27",fits:[2, 4],acr:"EDULEARN27",name:"19th Int'l Conf. on Education and New Learning Technologies",city:"Palma, Spain",event:"2027-06-30",dl:"2027-03-25",approx:true,tier:2,src:"Web research",url:"https://iated.org/edulearn/",why:"IATED summer edition — same profile as INTED, later cycle.",status:"watching",notes:""},
+ {id:"educon27",fits:[2],acr:"EDUCON 2027",name:"IEEE Global Engineering Education Conference",city:"Timişoara, Romania",event:"2027-04-20",dl:"2026-10-01",approx:true,tier:2,src:"Web research",url:"https://educon-conference.org/",why:"IEEE Education Society flagship for Region 8. 2026 cycle's abstract deadline was late Sept — expect the same; watch now.",status:"shortlisted",notes:""},
+ {id:"fie27",fits:[2],acr:"FIE 2027",name:"IEEE Frontiers in Education Conference",city:"North America (TBA)",event:"2027-10-15",dl:"2027-01-26",approx:true,tier:2,src:"Web research",url:"https://fie-conference.org/",why:"Premier engineering-education research venue; motivation/SDT work is core FIE territory. Abstracts ~late Jan.",status:"watching",notes:""},
+ {id:"lak27",fits:[1, 2, 4],acr:"LAK27",name:"17th Int'l Learning Analytics & Knowledge Conference",city:"TBA",event:"2027-03-15",dl:"2026-10-12",approx:true,tier:2,src:"Web research",url:"https://www.solaresearch.org/events/lak/lak27/",why:"If your SDT work touches trace data, dashboards, or engagement analytics, LAK is the top-tier target. Full-paper deadline historically ~mid-Oct.",status:"watching",notes:""},
+ {id:"site27",fits:[2],acr:"SITE 2027",name:"Society for IT & Teacher Education 38th Annual",city:"Nashville, USA",event:"2027-03-15",dl:"2026-12-18",approx:true,tier:2,src:"Web research",url:"https://site.aace.org/conf/",why:"Teacher-education + technology; CFP opens 26 Oct 2026.",status:"watching",notes:""},
+ {id:"aied27",fits:[1, 2, 4],acr:"AIED 2027",name:"Int'l Conf. on Artificial Intelligence in Education",city:"TBA",event:"2027-07-15",dl:"2027-02-01",approx:true,tier:2,src:"Web research",url:"https://iaied.org/",why:"Top AI-in-education venue; SDT-informed adaptive/motivational systems fit the main track.",status:"watching",notes:""},
+ {id:"isls27",fits:[2, 4],acr:"ISLS 2027",name:"Int'l Society of the Learning Sciences Annual Meeting",city:"TBA",event:"2027-06-15",dl:"2026-11-15",approx:true,tier:2,src:"Web research",url:"https://www.isls.org/",why:"Learning-sciences flagship (CSCL + ICLS); submissions typically due mid-November.",status:"watching",notes:""},
+ {id:"aect27",fits:[2, 4],acr:"AECT 2027",name:"AECT International Convention",city:"USA (TBA)",event:"2027-10-15",dl:"2027-02-16",approx:true,tier:2,src:"Web research",url:"https://www.aect.org/",why:"Educational communications & technology; 2026 proposals closed Feb — same window expected for 2027.",status:"watching",notes:""},
+ {id:"iceri26",fits:[2, 3, 4],acr:"ICERI2026",name:"19th Int'l Conf. of Education, Research and Innovation",city:"Seville, Spain",event:"2026-11-09",dl:"2026-07-23",approx:false,tier:2,src:"Web research",url:"https://iated.org/iceri/",why:"Extended abstract deadline passed 23 Jul 2026 — but IATED often accepts late/virtual submissions; one email is worth it if you want a 2026 slot.",status:"missed",notes:""},
+ {id:"tale26",fits:[2],acr:"TALE 2026",name:"IEEE Int'l Conf. on Teaching, Assessment and Learning for Engineering",city:"Pattaya, Thailand",event:"2026-12-02",dl:"2026-08-02",approx:false,tier:2,src:"EDAS + web",url:"https://tale-conference.org/2026",why:"Closed 2 Aug 2026 (extended). Flagship Asia-Pacific engineering-education venue — put TALE 2027 on the watchlist now.",status:"missed",notes:""},
  // ---- Tier 1: SDT & motivation core ----
- {id:"aera27",acr:"AERA 2027",name:"AERA Annual Meeting — incl. Motivation in Education SIG",city:"Toronto, Canada",event:"2027-04-14",dl:"2026-07-24",approx:false,tier:1,src:"Web research",url:"https://www.aera.net/Events-Meetings/Annual-Meeting",why:"The biggest education-research meeting; closed 24 Jul 2026. Attend anyway if useful; the 2028 call opens ~May 2027 — the scout must catch it.",status:"missed",notes:""},
- {id:"earli27",acr:"EARLI 2027",name:"20th Biennial EARLI Conference",city:"Europe (TBA)",event:"2027-08-20",dl:"2026-11-30",approx:true,tier:1,src:"Web research",url:"https://www.earli.org/",why:"Europe's premier learning & instruction conference; SIG 8 (Motivation & Emotion) is the SDT crowd's home. Submissions expected late 2026.",status:"shortlisted",notes:""},
- {id:"icm28",acr:"ICM 2028",name:"20th Int'l Conference on Motivation (EARLI SIG 8)",city:"TBA",event:"2028-06-15",dl:"2028-01-15",approx:true,tier:1,src:"Web research",url:"http://motivation-emotion.eu/",why:"THE motivation conference. ICM 2026 (Lisbon) just passed — biennial, so 2028 is next. Watchlist item with high priority.",status:"watching",notes:""},
- {id:"sdtnext",acr:"SDT Int'l Conf. (10th)",name:"International Self-Determination Theory Conference",city:"TBA (~2029)",event:"2029-06-15",dl:"2028-10-01",approx:true,tier:1,src:"Web research",url:"https://selfdeterminationtheory.org/conferences/",why:"Your home conference. 9th edition just ran in Geneva (Jul 2026, ~triennial). Follow CSDT announcements; abstract windows open ~9 months out.",status:"watching",notes:""},
- {id:"ssm27",acr:"SSM 2027",name:"Society for the Study of Motivation Annual Conference",city:"USA (with APS, TBA)",event:"2027-05-20",dl:"2027-01-15",approx:true,tier:1,src:"Web research",url:"https://www.thessm.org/",why:"Motivation-science society meeting co-located with APS — strong theory audience for SDT work.",status:"watching",notes:""}
+ {id:"aera27",fits:[1, 2, 4],acr:"AERA 2027",name:"AERA Annual Meeting — incl. Motivation in Education SIG",city:"Toronto, Canada",event:"2027-04-14",dl:"2026-07-24",approx:false,tier:1,src:"Web research",url:"https://www.aera.net/Events-Meetings/Annual-Meeting",why:"The biggest education-research meeting; closed 24 Jul 2026. Attend anyway if useful; the 2028 call opens ~May 2027 — the scout must catch it.",status:"missed",notes:""},
+ {id:"earli27",fits:[1, 2, 4],acr:"EARLI 2027",name:"20th Biennial EARLI Conference",city:"Europe (TBA)",event:"2027-08-20",dl:"2026-11-30",approx:true,tier:1,src:"Web research",url:"https://www.earli.org/",why:"Europe's premier learning & instruction conference; SIG 8 (Motivation & Emotion) is the SDT crowd's home. Submissions expected late 2026.",status:"shortlisted",notes:""},
+ {id:"icm28",fits:[1, 2, 4],acr:"ICM 2028",name:"20th Int'l Conference on Motivation (EARLI SIG 8)",city:"TBA",event:"2028-06-15",dl:"2028-01-15",approx:true,tier:1,src:"Web research",url:"http://motivation-emotion.eu/",why:"THE motivation conference. ICM 2026 (Lisbon) just passed — biennial, so 2028 is next. Watchlist item with high priority.",status:"watching",notes:""},
+ {id:"sdtnext",fits:[1, 2, 3, 4],acr:"SDT Int'l Conf. (10th)",name:"International Self-Determination Theory Conference",city:"TBA (~2029)",event:"2029-06-15",dl:"2028-10-01",approx:true,tier:1,src:"Web research",url:"https://selfdeterminationtheory.org/conferences/",why:"Your home conference. 9th edition just ran in Geneva (Jul 2026, ~triennial). Follow CSDT announcements; abstract windows open ~9 months out.",status:"watching",notes:""},
+ {id:"ssm27",fits:[1, 2],acr:"SSM 2027",name:"Society for the Study of Motivation Annual Conference",city:"USA (with APS, TBA)",event:"2027-05-20",dl:"2027-01-15",approx:true,tier:1,src:"Web research",url:"https://www.thessm.org/",why:"Motivation-science society meeting co-located with APS — strong theory audience for SDT work.",status:"watching",notes:""},
+ // ---- Journal targets ----
+ {id:"j-chb",fits:[1],kind:"journal",acr:"CHB",name:"Computers in Human Behavior (Elsevier)",city:"Journal · Q1, ABDC-A",event:null,dl:null,approx:false,tier:4,src:"Research deck",url:"https://www.sciencedirect.com/journal/computers-in-human-behavior",why:"W1 bibliometric paper is UNDER REVIEW here — revising on journal feedback.",status:"under review",notes:""},
+ {id:"j-heff",fits:[3],kind:"journal",acr:"HEFF",name:"Higher Education for the Future (SAGE)",city:"Journal · Scopus",event:null,dl:null,approx:false,tier:4,src:"Research deck",url:"https://journals.sagepub.com/home/hef",why:"Primary journal target for the 3C paper per the Aug 2026 progress deck — higher-ed policy and practice, India-context friendly.",status:"shortlisted",notes:""},
+ {id:"j-cae",fits:[1,2,4],kind:"journal",acr:"C&E",name:"Computers & Education (Elsevier)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://www.sciencedirect.com/journal/computers-and-education",why:"Top EdTech empirical venue — strong fit for the RCT results paper and the µLearn case study.",status:"watching",notes:""},
+ {id:"j-ihe",fits:[2,4],kind:"journal",acr:"I&HE",name:"The Internet and Higher Education (Elsevier)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://www.sciencedirect.com/journal/the-internet-and-higher-education",why:"Online higher-ed focus; fits structured autonomy in self-directed online learning.",status:"watching",notes:""},
+ {id:"j-motem",fits:[2,4],kind:"journal",acr:"M&E",name:"Motivation and Emotion (Springer)",city:"Journal · SDT home turf",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://link.springer.com/journal/11031",why:"Core motivation-science journal — SDT-native audience for the RCT mediation model.",status:"watching",notes:""},
+ {id:"j-lai",fits:[2],kind:"journal",acr:"L&I",name:"Learning and Instruction (Elsevier)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://www.sciencedirect.com/journal/learning-and-instruction",why:"Premier European learning-research journal (EARLI); rigorous experimental motivation work fits.",status:"watching",notes:""},
+ {id:"j-bjet",fits:[2,4],kind:"journal",acr:"BJET",name:"British Journal of Educational Technology (Wiley)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://bera-journals.onlinelibrary.wiley.com/journal/14678535",why:"EdTech breadth with design-oriented empirical work — good fit for gamification-as-scaffolding.",status:"watching",notes:""},
+ {id:"j-ijcscl",fits:[4],kind:"journal",acr:"ijCSCL",name:"Intl. Journal of Computer-Supported Collaborative Learning (Springer)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://link.springer.com/journal/11412",why:"Peer-learning community mechanisms are exactly ijCSCL territory for the µLearn case study.",status:"watching",notes:""},
+ {id:"j-heq",fits:[3],kind:"journal",acr:"HEQ",name:"Higher Education Quarterly (Wiley)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://onlinelibrary.wiley.com/journal/14682273",why:"Higher-ed governance and policy critique — alternative home for the 3C framework.",status:"watching",notes:""},
+ {id:"j-jcal",fits:[2,4],kind:"journal",acr:"JCAL",name:"Journal of Computer Assisted Learning (Wiley)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://onlinelibrary.wiley.com/journal/13652729",why:"Solid mid-tier option for either empirical study if Q1 first choices bounce.",status:"watching",notes:""}
 ];
 const KEY="cqe-conf-tracker-v2";
 const TODAY=new Date(); TODAY.setHours(0,0,0,0);
 let data;
 try{ data=JSON.parse(localStorage.getItem(KEY))||null }catch(e){ data=null }
 if(!data){ data=structuredClone(SEED); save(); }
-else{ const known=new Set(data.map(c=>c.id)); let added=false;
-  SEED.forEach(s=>{ if(!known.has(s.id)){ data.push(structuredClone(s)); added=true; } });
-  if(added) save(); }
+else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
+  SEED.forEach(s=>{
+    const cur=known.get(s.id);
+    if(!cur){ data.push(structuredClone(s)); changed=true; }
+    else{ // sync curated metadata into stored copies without touching user fields
+      if(JSON.stringify(cur.fits||null)!==JSON.stringify(s.fits||null)){ cur.fits=s.fits; changed=true; }
+      if((cur.kind||null)!==(s.kind||null)){ cur.kind=s.kind; changed=true; }
+      if(cur.tier!==s.tier){ cur.tier=s.tier; changed=true; }
+    }
+  });
+  if(changed) save(); }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} }
 function days(d){ if(!d) return null; return Math.round((new Date(d+"T00:00:00")-TODAY)/864e5) }
 function fmt(d){ if(!d) return "TBA"; const dt=new Date(d+"T00:00:00"); return dt.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) }
@@ -371,8 +404,17 @@ function row(c){
   </div>`;
 }
 function switchTab(name){
-  document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected",x.dataset.tab===name));
-  ["dash","pipe","prof","play"].forEach(t=>document.getElementById("tab-"+t).hidden=(name!==t));
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected",x.dataset.tab===name||(name==="match"&&x.dataset.tab==="prof")));
+  ["dash","pipe","prof","play","match"].forEach(t=>document.getElementById("tab-"+t).hidden=(name!==t));
+}
+function renderMatch(w){
+  const ws=WS[w];
+  document.getElementById("matchTitle").textContent="Venue matches — "+ws.name;
+  document.getElementById("matchNote").textContent=ws.note;
+  const list=data.filter(c=>(c.fits||[]).includes(w));
+  document.getElementById("matchList").innerHTML=groupedCards(list,"");
+  bindCards("#matchList",()=>renderMatch(w));
+  switchTab("match"); window.scrollTo({top:0});
 }
 function drillFilter(key){
   tileFilter=key;
@@ -393,38 +435,48 @@ function renderPipe(){
     (!tileFilter||DRILLS[tileFilter].test(c))&&
     (!q||`${c.acr} ${c.name} ${c.city} ${c.why}`.toLowerCase().includes(q))&&
     (!ft||String(c.tier)===ft)&&(!fs||c.status===fs));
-  const byTier={1:[],2:[],3:[]};
+  document.getElementById("pipeList").innerHTML=groupedCards(list,
+    tileFilter?`<div class="chipbar"><span class="m" style="color:var(--muted);font-size:13px">Showing</span><span class="pill acc">${DRILLS[tileFilter].label} (${list.length})<button type="button" aria-label="Clear filter" id="clearDrill">✕</button></span></div>`:"");
+  const cd=document.getElementById("clearDrill");
+  if(cd) cd.addEventListener("click",()=>{ tileFilter=null; renderPipe(); });
+  bindCards("#pipeList",renderPipe);
+}
+function groupedCards(list,prefix){
+  const byTier={1:[],2:[],3:[],4:[]};
   list.forEach(c=>byTier[c.tier]?.push(c));
-  let html=tileFilter?`<div class="chipbar"><span class="m" style="color:var(--muted);font-size:13px">Showing</span><span class="pill acc">${DRILLS[tileFilter].label} (${list.length})<button type="button" aria-label="Clear filter" id="clearDrill">✕</button></span></div>`:"";
-  for(const t of [1,2,3]){
+  let html=prefix||"";
+  for(const t of [1,2,3,4]){
     const arr=byTier[t]; if(!arr.length) continue;
     arr.sort((a,b)=>{const da=days(a.dl),db=days(b.dl);const ka=da===null?9e9:(da<0?8e9:da),kb=db===null?9e9:(db<0?8e9:db);return ka-kb});
     html+=`<div class="group-h">${TIERS[t]}</div>`+arr.map(card).join("");
   }
-  document.getElementById("pipeList").innerHTML=(html&&list.length)?html:html+`<p style="color:var(--muted)">No matches.</p>`;
-  const cd=document.getElementById("clearDrill");
-  if(cd) cd.addEventListener("click",()=>{ tileFilter=null; renderPipe(); });
-  document.querySelectorAll(".conf select.status").forEach(s=>s.addEventListener("change",e=>{
-    const c=data.find(x=>x.id===e.target.dataset.id); if(c){c.status=e.target.value;save();renderDash();renderPipe();}
+  return list.length?html:html+`<p style="color:var(--muted)">No matches.</p>`;
+}
+function bindCards(root,rerender){
+  const R=document.querySelector(root);
+  R.querySelectorAll(".conf select.status").forEach(s=>s.addEventListener("change",e=>{
+    const c=data.find(x=>x.id===e.target.dataset.id); if(c){c.status=e.target.value;save();renderDash();rerender();}
   }));
-  document.querySelectorAll(".conf textarea").forEach(t=>t.addEventListener("change",e=>{
+  R.querySelectorAll(".conf textarea").forEach(t=>t.addEventListener("change",e=>{
     const c=data.find(x=>x.id===e.target.dataset.id); if(c){c.notes=e.target.value;save();}
   }));
-  document.querySelectorAll(".conf .del").forEach(b=>b.addEventListener("click",e=>{
+  R.querySelectorAll(".conf .del").forEach(b=>b.addEventListener("click",e=>{
     const c=data.find(x=>x.id===e.target.dataset.id);
-    if(c&&confirm(`Remove ${c.acr} from the pipeline?`)){ data=data.filter(x=>x.id!==c.id); save(); renderDash(); renderPipe(); }
+    if(c&&confirm(`Remove ${c.acr} from the pipeline?`)){ data=data.filter(x=>x.id!==c.id); save(); renderDash(); rerender(); }
   }));
 }
 function card(c){
   const u=urg(days(c.dl));
+  const j=c.kind==="journal";
   return `<div class="conf" id="conf-${c.id}">
     <div class="top"><span class="acr">${esc(c.acr)}</span><span class="name">${esc(c.name)}</span>
-      <span class="tag ${c.tier===1?"t1":""}">Tier ${c.tier}</span></div>
+      ${(c.fits||[]).map(w=>`<span class="tag">W${w}</span>`).join("")}
+      <span class="tag ${c.tier===1?"t1":""}">${j?"Journal":"Tier "+c.tier}</span></div>
     <div class="meta">
       <span>${esc(c.city)}</span>
-      <span class="mono">event ${fmt(c.event)}</span>
+      ${j?'<span class="pill">rolling submissions</span>':`<span class="mono">event ${fmt(c.event)}</span>
       <span class="mono">deadline ${fmt(c.dl)}${c.approx?" ":""}</span>${c.approx?'<span class="verify">verify</span>':""}
-      <span class="pill ${u.cls}">${u.label}</span>
+      <span class="pill ${u.cls}">${u.label}</span>`}
       ${c.url?`<a href="${esc(c.url)}" target="_blank" rel="noopener">site ↗</a>`:""}
       <span style="color:var(--faint)">via ${esc(c.src)}</span>
     </div>
@@ -441,6 +493,9 @@ document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("clic
   if(b.dataset.tab==="pipe"&&tileFilter){ tileFilter=null; renderPipe(); }
   switchTab(b.dataset.tab);
 }));
+// find-venues buttons on profile workstreams + match page back button
+document.querySelectorAll(".matchbtn").forEach(b=>b.addEventListener("click",()=>renderMatch(+b.dataset.ws)));
+document.getElementById("backToProf").addEventListener("click",()=>switchTab("prof"));
 // keyboard activation for clickable deadline rows
 document.addEventListener("keydown",e=>{
   if((e.key==="Enter"||e.key===" ")&&e.target.classList?.contains("dl-row")){ e.preventDefault(); drillToConf(e.target.dataset.id); }
