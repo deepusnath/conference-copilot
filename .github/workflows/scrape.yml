@@ -1,0 +1,21 @@
+name: Scrape CFPs
+on:
+  schedule:
+    - cron: "0 3 * * 2,5"   # Tue & Fri 03:00 UTC (08:30 IST)
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - run: node scripts/build-feed.mjs
+      - name: Commit feed if changed
+        run: |
+          git config user.name "cfp-scraper[bot]"
+          git config user.email "actions@github.com"
+          git add data/
+          git diff --cached --quiet || { git commit -m "CFP feed update ($(date -u +%F))"; git push; }

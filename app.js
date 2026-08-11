@@ -269,6 +269,7 @@ document.getElementById("icsBtn").addEventListener("click",()=>{
       "DTSTART;VALUE=DATE:"+d,"DTEND;VALUE=DATE:"+d2,
       "SUMMARY:"+icsEsc("⏰ "+c.acr+" submission deadline"+(c.approx?" (verify)":"")),
       "DESCRIPTION:"+icsEsc(c.name+(c.url?"\n"+c.url:"")+"\nStatus: "+c.status+(c.notes?"\n"+c.notes:"")),
+      ...["-P21D","-P7D","-P3D"].map(t=>["BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(c.acr+" deadline approaching"),"TRIGGER:"+t,"END:VALARM"].join("\r\n")),
       "END:VEVENT"].join("\r\n");
   });
   if(!evs.length){ alert("No dated deadlines to export."); return; }
@@ -370,3 +371,44 @@ async function pullCloud(){
     if(sbUser) pullCloud();
   });
 })();
+
+// ---- scraper review queue: data/cfp-feed.json → approve/dismiss (#12) ----
+const DISMISS_KEY="cqe-cfp-dismissed-v1";
+let dismissed=new Set(); try{dismissed=new Set(JSON.parse(localStorage.getItem(DISMISS_KEY)||"[]"))}catch(e){}
+function saveDismissed(){ try{localStorage.setItem(DISMISS_KEY,JSON.stringify([...dismissed]))}catch(e){} }
+(async function initQueue(){
+  let feed;
+  try{ const r=await fetch("data/cfp-feed.json",{cache:"no-store"}); if(!r.ok) return; feed=await r.json(); }
+  catch(e){ return; } // single-file/offline builds have no feed — queue simply absent
+  if(!feed||!Array.isArray(feed.venues)) return;
+  renderQueue(feed);
+})();
+function renderQueue(feed){
+  const H=document.getElementById("rqH"),L=document.getElementById("rqList");
+  if(!H||!L) return;
+  const byId=new Map(data.map(c=>[c.id,c]));
+  const news=feed.venues.filter(v=>!byId.has(v.id)&&!dismissed.has(v.id)&&days(v.dl)!==null&&days(v.dl)>=0);
+  const changes=feed.venues.filter(v=>byId.has(v.id)&&v.dl&&byId.get(v.id).dl!==v.dl&&!dismissed.has("chg:"+v.id+":"+v.dl));
+  if(!news.length&&!changes.length){ H.hidden=true; L.innerHTML=""; return; }
+  H.hidden=false;
+  H.textContent=`Scraper review queue — ${news.length} new CFP${news.length===1?"":"s"}${changes.length?`, ${changes.length} deadline change${changes.length===1?"":"s"}`:""} · feed ${feed.date}`;
+  L.innerHTML=changes.map(v=>{const cur=byId.get(v.id);
+    return `<div class="dl-row"><span class="date mono">${fmt(v.dl)}</span>
+      <span class="who"><b>${esc(cur.acr)}</b> <span class="m">deadline ${fmt(cur.dl)} → ${fmt(v.dl)} (scraped — verify)</span></span>
+      <button class="btn" data-qa="chg" data-id="${esc(v.id)}" data-dl="${esc(v.dl)}">Apply</button>
+      <button class="btn" data-qa="dchg" data-id="${esc(v.id)}" data-dl="${esc(v.dl)}">Dismiss</button></div>`;
+  }).join("")+news.slice(0,15).map(v=>`<div class="dl-row">
+      <span class="date mono">${fmt(v.dl)}</span>
+      <span class="who"><b>${esc(v.acr)}</b> <span class="m">· ${esc((v.name||"").slice(0,70))} · ${esc(v.city)}</span> <span class="verify">unvetted</span></span>
+      <button class="btn" data-qa="add" data-id="${esc(v.id)}">Add</button>
+      <button class="btn" data-qa="dis" data-id="${esc(v.id)}">Dismiss</button></div>`).join("");
+  L.querySelectorAll("[data-qa]").forEach(b=>b.addEventListener("click",()=>{
+    const id=b.dataset.id,act=b.dataset.qa,v=feed.venues.find(x=>x.id===id);
+    if(act==="add"&&v){ data.push({approx:true,sub:"verify",...v,status:"watching",notes:""}); save(); renderDash(); renderPipe(); }
+    if(act==="dis"){ dismissed.add(id); saveDismissed(); }
+    if(act==="chg"&&v){ const cur=data.find(x=>x.id===id);
+      if(cur){ cur.notes=(cur.notes?cur.notes+"\n":"")+`Deadline ${cur.dl||"?"} → ${v.dl} (scraper ${feed.date})`; cur.dl=v.dl; cur.approx=true; save(); renderDash(); renderPipe(); } }
+    if(act==="dchg"){ dismissed.add("chg:"+id+":"+b.dataset.dl); saveDismissed(); }
+    renderQueue(feed);
+  }));
+}
