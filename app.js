@@ -147,6 +147,11 @@ function bindCards(root,rerender){
     if(c&&confirm(`Remove ${c.acr} from the pipeline?`)){ data=data.filter(x=>x.id!==c.id); save(); renderDash(); rerender(); }
   }));
 }
+function qBadge(c){
+  const q=c.q||{verdict:"unscreened",evidence:"Not yet screened — run the vet checklist before submitting"};
+  const cls={submit:"good",caution:"warn",skip:"crit"}[q.verdict]||"";
+  return `<span class="pill ${cls}" title="${esc(q.evidence||"")}">${esc(q.verdict)}</span>`;
+}
 function card(c){
   const u=urg(days(c.dl));
   const j=c.kind==="journal";
@@ -159,6 +164,7 @@ function card(c){
       ${j?'<span class="pill">rolling submissions</span>':`<span class="mono">event ${fmt(c.event)}</span>
       <span class="mono">deadline ${fmt(c.dl)}${c.approx?" ":""}</span>${c.approx?'<span class="verify">verify</span>':""}
       <span class="pill ${u.cls}">${u.label}</span>`}
+      ${qBadge(c)}
       ${c.url?`<a href="${esc(c.url)}" target="_blank" rel="noopener">site ↗</a>`:""}
       <span style="color:var(--faint)">via ${esc(c.src)}</span>
     </div>

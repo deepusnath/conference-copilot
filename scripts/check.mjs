@@ -18,6 +18,7 @@ for(const c of SEED){
   if(c.dl && !/^\d{4}-\d{2}-\d{2}$/.test(c.dl)) errs.push(`${c.id}: bad deadline ${c.dl}`);
   for(const w of c.fits||[]) if(!WSABS[w]) errs.push(`${c.id}: fits unknown workstream ${w}`);
   if(c.sub && !["portal","verify"].includes(c.sub)) errs.push(`${c.id}: bad sub route ${c.sub}`);
+  if(c.q && !["submit","caution","skip","unscreened"].includes(c.q.verdict)) errs.push(`${c.id}: bad screening verdict ${c.q.verdict}`);
 }
 if(errs.length){ console.error("DATA ERRORS:\n"+errs.join("\n")); process.exit(1); }
 
