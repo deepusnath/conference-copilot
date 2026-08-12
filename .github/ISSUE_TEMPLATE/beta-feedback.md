@@ -13,4 +13,6 @@ labels: beta-feedback
 
 **How much does this matter to you?** (blocks me / annoying / nice-to-have)
 
+**How long until the dashboard felt like YOURS?** (minutes, roughly)
+
 **Device & browser:**

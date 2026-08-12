@@ -117,3 +117,18 @@ body.ro select.status{pointer-events:none;opacity:.75}
 .editbtns{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .robanner{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);border-radius:10px;padding:10px 14px;margin:0 0 18px;font-size:13.5px}
 dialog textarea{width:100%;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--ground);color:var(--ink)}
+/* first-run wizard */
+dialog.wiz{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);width:min(560px,94vw);padding:0}
+.wizbody{padding:26px 28px}
+.wizbody h2{margin:0 0 6px}
+.wizl{display:block;font-size:12.5px;font-weight:600;margin:12px 0 4px}
+.wizf{width:100%;font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--ground);color:var(--ink)}
+.wiznav{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+.wizdots{display:flex;gap:6px;margin-bottom:14px}
+.wizdots span{width:26px;height:4px;border-radius:2px;background:var(--chip)}
+.wizdots span.on{background:var(--accent)}
+.wizchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.chip{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--line);border-radius:99px;padding:4px 10px;background:var(--ground);color:var(--muted);cursor:pointer}
+.chip.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
+.wizpaper{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:640px){ dialog.wiz{width:100vw;height:100dvh;max-height:100dvh;border-radius:0} }

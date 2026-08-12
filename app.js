@@ -4,10 +4,11 @@ let sb=null,sbUser=null,pushTimer=null; // cloud state — declared early: save(
 // ---- researcher profile state (#14) + keyword matching engine (#15) ----
 const PKEY="cqe-profile-v1";
 let prof=null;
+let FIRSTRUN=false, EXAMPLE=false;
 try{ prof=JSON.parse(localStorage.getItem(PKEY))||null }catch(e){}
-if(!prof||!Array.isArray(prof.workstreams)) prof=structuredClone(DEFAULT_PROFILE);
+if(!prof||!Array.isArray(prof.workstreams)){ prof=structuredClone(EMPTY_PROFILE); FIRSTRUN=true; }
 let RO=false; // read-only share view
-function saveProf(){ if(RO) return; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
+function saveProf(){ if(RO||EXAMPLE) return; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
 function wsGet(w){ return prof.workstreams.find(x=>x.w===w)||prof.workstreams[0]; }
 function computeFits(c){
   const out=new Set((c.fits||[]).filter(w=>prof.workstreams.some(x=>x.w===w)));
@@ -26,7 +27,7 @@ function profText(){
 const TODAY=new Date(); TODAY.setHours(0,0,0,0);
 let data;
 try{ data=JSON.parse(localStorage.getItem(KEY))||null }catch(e){ data=null }
-if(!data){ data=structuredClone(SEED); save(); }
+if(!data){ if(FIRSTRUN){ data=[]; } else { data=structuredClone(SEED); save(); } }
 else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
   SEED.forEach(s=>{
     const cur=known.get(s.id);
@@ -39,7 +40,7 @@ else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
   });
   if(changed) save(); }
 
-function save(){ if(RO) return; try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
+function save(){ if(RO||EXAMPLE) return; try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
 function days(d){ if(!d) return null; return Math.round((new Date(d+"T00:00:00")-TODAY)/864e5) }
 function fmt(d){ if(!d) return "TBA"; const dt=new Date(d+"T00:00:00"); return dt.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) }
 function urg(n){ if(n===null) return {cls:"",label:"date TBA"}; if(n<0) return {cls:"",label:"closed"}; if(n<=7) return {cls:"crit",label:n+"d left — critical"}; if(n<=21) return {cls:"warn",label:n+"d left"}; return {cls:"good",label:n+"d left"} }
@@ -115,6 +116,10 @@ function renderPipe(){
     (!tileFilter||DRILLS[tileFilter].test(c))&&
     (!q||`${c.acr} ${c.name} ${c.city} ${c.why}`.toLowerCase().includes(q))&&
     (!ft||String(c.tier)===ft)&&(!fs||c.status===fs));
+  if(!data.length){
+    document.getElementById("pipeList").innerHTML=`<p style="color:var(--muted)">Your pipeline is empty. Finish the 5-question setup (reload the page), import a scout digest via Import JSON, or add venues manually \u2014 the scrapers refresh the review queue Tuesdays and Fridays.</p>`;
+    return;
+  }
   document.getElementById("pipeList").innerHTML=groupedCards(list,
     tileFilter?`<div class="chipbar"><span class="m" style="color:var(--muted);font-size:13px">Showing</span><span class="pill acc">${DRILLS[tileFilter].label} (${list.length})<button type="button" aria-label="Clear filter" id="clearDrill">✕</button></span></div>`:"");
   const cd=document.getElementById("clearDrill");
@@ -190,6 +195,7 @@ function emailBody(c,w,draft){
 async function copyText(t,btn,label){ try{ await navigator.clipboard.writeText(t); const o=btn.textContent; btn.textContent="Copied \u2713"; setTimeout(()=>btn.textContent=label||o,1500);}catch(e){ alert("Copy failed \u2014 select and copy manually."); } }
 function openDraft(id,focusSubmit){
   const c=data.find(x=>x.id===id); if(!c) return;
+  if(!prof.workstreams.length){ alert("Add a paper first: Researcher profile \u2192 Add workstream (or restart setup)."); return; }
   const wsOpts=computeFits(c); if(!wsOpts.length&&prof.workstreams.length) wsOpts.push(prof.workstreams[0].w);
   let w=c.draftWs&&wsOpts.includes(c.draftWs)?c.draftWs:wsOpts[0];
   const d=document.createElement("dialog"); d.style.maxWidth="640px";
@@ -377,7 +383,7 @@ async function pullCloud(){
       ({data:row,error}=await sb.from("user_pipelines").select("data").eq("user_id",sbUser.id).maybeSingle());
     }
     if(error) throw error;
-    if(row&&row.profile&&Array.isArray(row.profile.workstreams)){ prof=row.profile; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} renderProfile(); }
+    if(row&&row.profile&&Array.isArray(row.profile.workstreams)){ prof=row.profile; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} renderProfile(); FIRSTRUN=false; const wd=document.getElementById("wizDlg"); if(wd&&!wd.dataset.dirty){ wd.close(); wd.remove(); } }
     if(row&&Array.isArray(row.data)&&row.data.length){
       data=row.data; try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}
       tileFilter=null; renderDash(); renderPipe();
@@ -459,6 +465,8 @@ function renderQueue(feed){
 // ---- dynamic researcher profile tab (#14) ----
 function renderProfile(){
   const B=document.getElementById("profBody"); if(!B) return;
+  const kick=document.querySelector(".kicker");
+  if(kick) kick.textContent=prof.name?(prof.name+(prof.thesis?" \u00b7 "+prof.thesis.slice(0,60):"")):"Set up your research profile to begin";
   B.innerHTML=`<div class="prose">
     <h2>${esc(prof.name)}</h2>
     <p>${esc(prof.headline)}<br>${esc(prof.guidance)}</p>
@@ -590,3 +598,124 @@ async function shareDialog(){
 
 // boot — after all declarations above
 renderDash(); renderPipe(); renderProfile();
+if(FIRSTRUN&&!/[#&]share=/.test(location.hash)) openWizard();
+
+// ---- first-run onboarding wizard (P1, #22) ----
+function wizInput(id,label,val,ph){ return `<label class="wizl">${label}</label><input id="${id}" class="wizf" value="${esc(val||"")}" placeholder="${esc(ph||"")}">`; }
+function openWizard(){
+  if(document.getElementById("wizDlg")) return;
+  const d=document.createElement("dialog"); d.id="wizDlg"; d.className="wiz";
+  document.body.appendChild(d);
+  d.addEventListener("input",()=>{ d.dataset.dirty=1; });
+  d.addEventListener("close",()=>d.remove());
+  const ans={name:"",stage:"PhD candidate",inst:"",country:"",field:"Education",topic:"",kw:new Set(FIELD_KEYWORDS["Education"].slice(0,4)),papers:[{title:"",stage:"idea",kw:""}]};
+  const PSTAGES=[["idea","Idea / early"],["design","Design ready"],["data","Data collected"],["results","Results ready"]];
+  let step=0;
+  const dots=()=>`<div class="wizdots">${[1,2,3].map(i=>`<span class="${i<=step?"on":""}"></span>`).join("")}</div>`;
+  function grab(){ // pull current inputs into ans before navigating
+    const g=id=>{const el=d.querySelector("#"+id); return el?el.value.trim():null;};
+    if(step===1){ ans.name=g("zName")??ans.name; ans.stage=g("zStage")??ans.stage; ans.inst=g("zInst")??ans.inst; ans.country=g("zCountry")??ans.country; }
+    if(step===2){ ans.topic=g("zTopic")??ans.topic; }
+    if(step===3){ d.querySelectorAll(".wizpaper").forEach((row,i)=>{
+      ans.papers[i]={title:row.querySelector(".pt").value.trim(),stage:row.querySelector(".ps").value,kw:row.querySelector(".pk").value.trim()};
+    }); }
+  }
+  function nav(to){ grab(); step=to; render(); }
+  function render(){
+    if(step===0){ d.innerHTML=`<div class="wizbody">
+      <h2>Welcome to Conference CoPilot</h2>
+      <p class="sub">Track calls-for-papers, deadlines, and your submission pipeline \u2014 configured for <b>your</b> research in five quick questions.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+        <button class="btn primary" id="zStart">Set up my CoPilot (2 min)</button>
+        <button class="btn" id="zExample">Explore the example workspace first</button>
+        <button class="btn" id="zSkip" style="border:none;background:none;color:var(--faint)">Skip for now</button>
+      </div></div>`;
+      d.querySelector("#zStart").onclick=()=>nav(1);
+      d.querySelector("#zExample").onclick=()=>{ d.close(); enterExample(); };
+      d.querySelector("#zSkip").onclick=()=>d.close();
+    }
+    if(step===1){ d.innerHTML=`<div class="wizbody">${dots()}<h2>About you</h2>
+      ${wizInput("zName","Name",ans.name,"e.g. Priya Raman")}
+      <label class="wizl">Career stage</label>
+      <select id="zStage" class="wizf">${["PhD candidate","Postdoc","Faculty","Independent researcher"].map(s=>`<option ${s===ans.stage?"selected":""}>${s}</option>`).join("")}</select>
+      ${wizInput("zInst","Institution",ans.inst,"e.g. Amrita School of Business")}
+      ${wizInput("zCountry","Country",ans.country,"e.g. India")}
+      <div class="wiznav"><button class="btn" id="zB">\u2190 Back</button><button class="btn primary" id="zN">Next \u2192</button></div></div>`;
+      d.querySelector("#zB").onclick=()=>nav(0); d.querySelector("#zN").onclick=()=>nav(2);
+    }
+    if(step===2){ d.innerHTML=`<div class="wizbody">${dots()}<h2>Your research</h2>
+      <label class="wizl">Field</label>
+      <select id="zField" class="wizf">${Object.keys(FIELD_KEYWORDS).map(f=>`<option ${f===ans.field?"selected":""}>${f}</option>`).join("")}</select>
+      ${wizInput("zTopic","Your research in one line",ans.topic,"e.g. Self-Determination Theory in gamified learning")}
+      <label class="wizl">Matching keywords \u2014 tap to toggle, these find your venues</label>
+      <div id="zChips" class="wizchips"></div>
+      <div style="display:flex;gap:8px"><input id="zKwAdd" class="wizf" style="flex:1" placeholder="add your own keyword"><button class="btn" id="zKwBtn">Add</button></div>
+      <div class="wiznav"><button class="btn" id="zB">\u2190 Back</button><button class="btn primary" id="zN">Next \u2192</button></div></div>`;
+      const chips=()=>{ d.querySelector("#zChips").innerHTML=[...new Set([...FIELD_KEYWORDS[ans.field],...ans.kw])].map(k=>`<button type="button" class="chip ${ans.kw.has(k)?"on":""}" data-k="${esc(k)}">${esc(k)}</button>`).join("");
+        d.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ const k=b.dataset.k; ans.kw.has(k)?ans.kw.delete(k):ans.kw.add(k); chips(); }); };
+      chips();
+      d.querySelector("#zField").onchange=e=>{ ans.field=e.target.value; FIELD_KEYWORDS[ans.field].slice(0,4).forEach(k=>ans.kw.add(k)); chips(); };
+      d.querySelector("#zKwBtn").onclick=()=>{ const v=d.querySelector("#zKwAdd").value.trim().toLowerCase(); if(v){ ans.kw.add(v); d.querySelector("#zKwAdd").value=""; chips(); } };
+      d.querySelector("#zB").onclick=()=>nav(1); d.querySelector("#zN").onclick=()=>nav(3);
+    }
+    if(step===3){ d.innerHTML=`<div class="wizbody">${dots()}<h2>What are you working on?</h2>
+      <p class="sub">Each paper becomes a workstream \u2014 the CoPilot matches venues per paper. One is enough to start.</p>
+      <div id="zPapers">${ans.papers.map((p,i)=>`<div class="wizpaper">
+        <input class="wizf pt" value="${esc(p.title)}" placeholder="Working title of paper ${i+1}">
+        <div style="display:flex;gap:8px"><select class="wizf ps" style="flex:1">${PSTAGES.map(([v,l])=>`<option value="${v}" ${v===p.stage?"selected":""}>${l}</option>`).join("")}</select>
+        <input class="wizf pk" style="flex:2" value="${esc(p.kw)}" placeholder="keywords (comma-separated, optional)"></div></div>`).join("")}</div>
+      ${ans.papers.length<3?'<button class="btn" id="zMore">+ Add another paper</button>':""}
+      <div class="wiznav"><button class="btn" id="zB">\u2190 Back</button><button class="btn primary" id="zN">Create my CoPilot \u2192</button></div></div>`;
+      const more=d.querySelector("#zMore"); if(more) more.onclick=()=>{ grab(); ans.papers.push({title:"",stage:"idea",kw:""}); render(); };
+      d.querySelector("#zB").onclick=()=>nav(2);
+      d.querySelector("#zN").onclick=()=>{ grab(); const added=finishWizard(ans); step=4; render(); d.dataset.added=added; };
+    }
+    if(step===4){
+      const dated=data.filter(c=>c.dl&&days(c.dl)>=0).sort((x,y)=>days(x.dl)-days(y.dl));
+      const nearest=dated[0];
+      d.innerHTML=`<div class="wizbody"><h2>\ud83c\udf93 Your CoPilot is ready</h2>
+      <p class="sub"><b>${data.length}</b> venue${data.length===1?"":"s"} match your papers${nearest?` \u2014 the nearest deadline is <b>${esc(nearest.acr)}</b> on ${fmt(nearest.dl)}`:""}. The scout adds more every Monday; scrapers refresh Tuesdays and Fridays.</p>
+      ${(window.COPILOT_SUPABASE&&!sbUser)?'<p class="sub">Tip: click <b>\u2601 Sign in to sync</b> under the tabs to keep this on all your devices.</p>':""}
+      <div class="wiznav"><button class="btn" id="zEdit">Refine my profile</button><button class="btn primary" id="zGo">Open my dashboard \u2192</button></div></div>`;
+      d.querySelector("#zGo").onclick=()=>{ d.close(); switchTab("dash"); };
+      d.querySelector("#zEdit").onclick=()=>{ d.close(); switchTab("prof"); };
+    }
+  }
+  render(); d.showModal();
+}
+function finishWizard(ans){
+  const kw=[...ans.kw];
+  prof=structuredClone(EMPTY_PROFILE);
+  prof.name=ans.name||"Researcher";
+  prof.headline=[ans.stage,ans.inst,ans.country].filter(Boolean).join(", ");
+  prof.thesis=ans.topic;
+  prof.corr=prof.name+(ans.inst?", "+ans.inst:"");
+  prof.meta={field:ans.field,stage:ans.stage,country:ans.country,keywords:kw};
+  const stageTag={idea:["early stage","warn"],design:["design ready","warn"],data:["data collected","warn"],results:["results ready","good"]};
+  prof.workstreams=ans.papers.filter(p=>p.title||p.kw).map((p,i)=>{
+    const pk=p.kw.split(",").map(s=>s.trim()).filter(Boolean);
+    return {w:i+1,label:("W"+(i+1)+" \u00b7 "+(p.title||"Paper "+(i+1))).slice(0,48),short:p.title,
+      tag:stageTag[p.stage][0],tagCls:stageTag[p.stage][1],desc:"",matchNote:"",
+      authors:prof.name+" et al.",title:p.title,abs:"",keywords:pk.length?pk:kw};
+  });
+  if(!prof.workstreams.length) prof.workstreams=[{w:1,label:"W1 \u00b7 My research",short:ans.topic,tag:"early stage",tagCls:"warn",desc:"",matchNote:"",authors:prof.name+" et al.",title:ans.topic,abs:"",keywords:kw}];
+  FIRSTRUN=false;
+  saveProf();
+  const have=new Set(data.map(c=>c.id));
+  let added=0;
+  SEED.forEach(v=>{ if(have.has(v.id)) return;
+    const c=structuredClone(v); delete c.fits; // curated fits are the founder's — match on keywords only
+    if(computeFits(c).length){ c.status="watching"; c.notes=""; data.push(c); added++; } });
+  save(); renderDash(); renderPipe(); renderProfile();
+  return added;
+}
+function enterExample(){
+  EXAMPLE=true;
+  prof=structuredClone(EXAMPLE_PROFILE);
+  data=structuredClone(SEED);
+  const b=document.createElement("div"); b.className="robanner"; b.id="exBanner";
+  b.innerHTML=`Example workspace \u2014 the founder\u2019s real pipeline. Changes here are not saved. <button class="btn" id="exExit" style="margin-left:10px">Start my CoPilot \u2192</button>`;
+  document.querySelector("header.page").prepend(b);
+  b.querySelector("#exExit").onclick=()=>{ EXAMPLE=false; prof=structuredClone(EMPTY_PROFILE); data=[]; b.remove(); renderDash(); renderPipe(); renderProfile(); openWizard(); };
+  renderDash(); renderPipe(); renderProfile();
+}

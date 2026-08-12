@@ -53,8 +53,8 @@ const SEED = [
  {id:"j-jcal",q:{verdict:"submit",evidence:"Established journal from a major publisher (Elsevier/SAGE/Springer/Wiley); verify current quartile fits your target"},sub:"portal",subNote:"Submit via the journal's online submission system (linked from the homepage)",fits:[2,4],kind:"journal",acr:"JCAL",name:"Journal of Computer Assisted Learning (Wiley)",city:"Journal · Q1",event:null,dl:null,approx:false,tier:4,src:"Curated",url:"https://onlinelibrary.wiley.com/journal/13652729",why:"Solid mid-tier option for either empirical study if Q1 first choices bounce.",status:"watching",notes:""}
 ];
 
-// ---- Default researcher profile (editable in-app; this is the seed) ----
-const DEFAULT_PROFILE={
+// ---- Example workspace profile (the founder\u2019s — entered only by explicit choice) ----
+const EXAMPLE_PROFILE={
  name:"Deepu S. Nath",
  headline:"PhD Research Scholar, Amrita School of Business, Bangalore (Reg. BL.BU.D.MGT18002) \u00b7 deepu@fayausa.com \u00b7 Kerala, India (IST)",
  guidance:"Guide: Prof. Angan Sen Gupta (ASB Bangalore) \u00b7 Co-guide: Prof. Priya Gupta (ASB Bangalore) \u00b7 Doctoral committee: Prof. Nava Subramanium (ASB Coimbatore) \u00b7 Prof. Jayashankar Prasad (Director, CMD, Government of Kerala)",
@@ -82,4 +82,18 @@ const DEFAULT_PROFILE={
   abs:"Large-scale peer-learning communities promise self-directed growth, yet little is known about why some members become sustained contributors while others disengage. This case study examines \u00b5Learn \u2014 a Kerala-based peer-learning ecosystem connecting 35,000+ students with industry, academia, and government \u2014 through the lens of Self-Determination Theory, asking how its gamification and community mechanisms (interest-group choice, proof-of-work challenges, karma and recognition, learning circles and mentors, leadership roles) support or frustrate basic psychological needs and shape motivational internalisation. The design compares approximately 40 members \u2014 documented success stories and randomly selected dropout cases \u2014 using questionnaires and platform records, with data collection from September 2026. The expected contribution is a practitioner-grounded model of need-supportive gamification for organisations. [Work in progress: design stage \u2014 no findings yet.]",
   keywords:["peer learning", "community", "case study", "gamification", "collaborative", "cscl", "informal learning"]}
  ]
+};
+
+// ---- Empty scaffold for new users (filled by the first-run wizard) ----
+const EMPTY_PROFILE={name:"",headline:"",guidance:"",thesis:"",thesisDesc:"",chain:[],roadmap:"",record:"",corr:"",meta:{},workstreams:[]};
+
+// ---- Field \u2192 suggested matching keywords (wizard step 2) ----
+const FIELD_KEYWORDS={
+ "Education":["education","learning","teaching","pedagogy","curriculum","higher education","assessment"],
+ "Educational technology":["education","educational technology","e-learning","online learning","learning analytics","gamification","MOOC","AI in education"],
+ "Psychology":["psychology","motivation","behavior","cognition","wellbeing","self-determination"],
+ "Management":["management","leadership","organisation","policy","entrepreneurship","innovation"],
+ "Engineering":["engineering education","STEM","engineering","technology"],
+ "Computer science":["computing","artificial intelligence","human-computer interaction","data science","software"],
+ "Other":[]
 };

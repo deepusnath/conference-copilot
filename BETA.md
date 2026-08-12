@@ -12,14 +12,11 @@ Theory, now open to ~10 beta researchers from the µLearn / GTech community.
 - Abstract drafting per paper, submission-route detection, and read-only
   share links for your supervisor
 
-## Quick start (5 minutes)
+## Quick start (3 minutes)
 1. Open **https://deepusnath.github.io/conference-copilot/**
-2. Click **☁ Sign in to sync**, enter your email, open the magic link
-3. Go to **Researcher profile → Edit profile** and replace the seed profile
-   (the app ships with the founder's data as a working example — make it
-   yours, and edit/add your own workstreams with your papers' keywords)
-4. Prune the pipeline: keep venues that fit your field, Remove the rest,
-   add your own with **Add conference**
+2. Answer the five setup questions — your pipeline arrives pre-matched to
+   your papers' keywords (or explore the example workspace first)
+3. Click **☁ Sign in to sync** to keep it on all your devices
 
 ## What we ask
 - Use it for your *real* pipeline for at least two weeks
