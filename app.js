@@ -434,11 +434,7 @@ async function pullCloud(){
       ? `<span class="pill good">☁ synced · ${esc(sbUser.email)}</span><button class="btn" id="signOut">Sign out</button>`
       : `<button class="btn" id="signIn">☁ Sign in to sync across devices</button>`;
     const si=document.getElementById("signIn"),so=document.getElementById("signOut");
-    if(si) si.addEventListener("click",async()=>{
-      const email=prompt("Email for the magic sign-in link:"); if(!email) return;
-      const {error}=await sb.auth.signInWithOtp({email:email.trim(),options:{emailRedirectTo:location.origin+location.pathname}});
-      alert(error?("Sign-in failed: "+error.message):"Check your inbox and open the sign-in link on this device.");
-    });
+    if(si) si.addEventListener("click",signInDialog);
     if(so) so.addEventListener("click",()=>sb.auth.signOut());
   };
   renderAcct();
@@ -843,4 +839,37 @@ function renderHuntResults(w,out){
   if(all) all.addEventListener("click",()=>{ vs.forEach(v=>grab(v.id)); renderDash(); renderPipe(); renderMatch(w); });
   const ext=document.getElementById("huntExt");
   if(ext) ext.addEventListener("click",()=>startHunt(w,"extended"));
+}
+
+// ---- sign-in dialog (no native prompt/alert — those are blocked in
+// iOS standalone apps and some embedded webviews) ----
+function signInDialog(){
+  if(!sb) return;
+  const d=document.createElement("dialog"); d.style.maxWidth="420px";
+  d.innerHTML=`<h2 style="margin:0 0 8px">Sign in to sync</h2>
+    <p style="font-size:13px;color:var(--muted);margin:0 0 10px">Enter your email \u2014 we\u2019ll send a one-click sign-in link. Open it on this same device.</p>
+    <input id="siEmail" type="email" class="wizf" placeholder="you@example.com" autocomplete="email" inputmode="email">
+    <p id="siMsg" style="font-size:13px;margin:10px 0 0;min-height:18px"></p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button type="button" class="btn" id="siCancel">Cancel</button>
+      <button type="button" class="btn primary" id="siSend">Send sign-in link</button>
+    </div>`;
+  document.body.appendChild(d); d.showModal();
+  d.addEventListener("close",()=>d.remove());
+  d.querySelector("#siCancel").addEventListener("click",()=>d.close());
+  const send=async()=>{
+    const email=d.querySelector("#siEmail").value.trim();
+    const M=d.querySelector("#siMsg");
+    if(!email||!email.includes("@")){ M.textContent="Enter a valid email address."; return; }
+    M.textContent="Sending\u2026";
+    try{
+      const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+      if(error){ M.textContent="Sign-in failed: "+error.message; return; }
+      M.textContent="\u2713 Link sent \u2014 check your inbox and open it on this device.";
+      d.querySelector("#siSend").disabled=true;
+    }catch(e){ M.textContent="Sign-in failed: "+(e&&e.message||e); }
+  };
+  d.querySelector("#siSend").addEventListener("click",send);
+  d.querySelector("#siEmail").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); send(); } });
+  d.querySelector("#siEmail").focus();
 }
