@@ -55,6 +55,7 @@ const SEED = [
 
 // ---- Example workspace profile (the founder\u2019s — entered only by explicit choice) ----
 const EXAMPLE_PROFILE={
+ curated:true, // its workstream numbering matches the venue fits tags below
  name:"Deepu S. Nath",
  headline:"PhD Research Scholar, Amrita School of Business, Bangalore (Reg. BL.BU.D.MGT18002) \u00b7 deepu@fayausa.com \u00b7 Kerala, India (IST)",
  guidance:"Guide: Prof. Angan Sen Gupta (ASB Bangalore) \u00b7 Co-guide: Prof. Priya Gupta (ASB Bangalore) \u00b7 Doctoral committee: Prof. Nava Subramanium (ASB Coimbatore) \u00b7 Prof. Jayashankar Prasad (Director, CMD, Government of Kerala)",

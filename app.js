@@ -7,11 +7,17 @@ let prof=null;
 let FIRSTRUN=false, EXAMPLE=false;
 try{ prof=JSON.parse(localStorage.getItem(PKEY))||null }catch(e){}
 if(!prof||!Array.isArray(prof.workstreams)){ prof=structuredClone(EMPTY_PROFILE); FIRSTRUN=true; }
+else{
+  prof={...structuredClone(EMPTY_PROFILE),...prof}; // normalize: older/minimal profiles get missing fields
+  if(!("curated" in prof)&&prof.workstreams.some(x=>(x.label||"").includes("Map the field"))){
+    prof.curated=true; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){}
+  }
+}
 let RO=false; // read-only share view
 function saveProf(){ if(RO||EXAMPLE) return; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
 function wsGet(w){ return prof.workstreams.find(x=>x.w===w)||prof.workstreams[0]; }
 function computeFits(c){
-  const out=new Set((c.fits||[]).filter(w=>prof.workstreams.some(x=>x.w===w)));
+  const out=new Set(prof.curated?(c.fits||[]).filter(w=>prof.workstreams.some(x=>x.w===w)):[]);
   const text=(c.acr+" "+c.name+" "+(c.why||"")+" "+(c.city||"")).toLowerCase();
   const kw={};
   prof.workstreams.forEach(ws=>{
@@ -31,9 +37,9 @@ if(!data){ if(FIRSTRUN){ data=[]; } else { data=structuredClone(SEED); save(); }
 else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
   SEED.forEach(s=>{
     const cur=known.get(s.id);
-    if(!cur){ data.push(structuredClone(s)); changed=true; }
+    if(!cur){ if(prof.curated){ data.push(structuredClone(s)); changed=true; } } // catalog additions flow to the founder only; others use the review queue
     else{ // sync curated metadata into stored copies without touching user fields
-      if(JSON.stringify(cur.fits||null)!==JSON.stringify(s.fits||null)){ cur.fits=s.fits; changed=true; }
+      if(prof.curated&&JSON.stringify(cur.fits||null)!==JSON.stringify(s.fits||null)){ cur.fits=s.fits; changed=true; }
       if((cur.kind||null)!==(s.kind||null)){ cur.kind=s.kind; changed=true; }
       if(cur.tier!==s.tier){ cur.tier=s.tier; changed=true; }
     }
@@ -472,7 +478,7 @@ function renderProfile(){
     <p>${esc(prof.headline)}<br>${esc(prof.guidance)}</p>
     <h2>Thesis</h2>
     <p><b>${esc(prof.thesis)}.</b> ${esc(prof.thesisDesc)}</p>
-    <p>${prof.chain.map(x=>`<span class="pill acc">${esc(x)}</span>`).join(" \u2192 ")}</p>
+    <p>${(prof.chain||[]).map(x=>`<span class="pill acc">${esc(x)}</span>`).join(" \u2192 ")}</p>
     <div class="editbtns"><button class="btn" id="editProf">Edit profile</button><button class="btn" id="addWs">Add workstream</button>${sb?`<button class="btn" id="shareBtn">Share read-only link</button>`:""}</div>
   </div>
   <h2>Workstreams \u2192 one thesis</h2>`+
