@@ -501,7 +501,7 @@ function renderProfile(){
     <h2>Thesis</h2>
     <p><b>${esc(prof.thesis)}.</b> ${esc(prof.thesisDesc)}</p>
     <p>${(prof.chain||[]).map(x=>`<span class="pill acc">${esc(x)}</span>`).join(" \u2192 ")}</p>
-    <div class="editbtns"><button class="btn" id="editProf">Edit profile</button><button class="btn" id="addWs">Add workstream</button>${sb?`<button class="btn" id="shareBtn">Share read-only link</button>`:""}</div>
+    <div class="editbtns"><button class="btn" id="editProf">Edit profile</button><button class="btn" id="addWs">Add workstream</button>${sb?`<button class="btn" id="shareBtn">Share read-only link</button>`:""}<button class="btn" id="restartSetup">Restart setup\u2026</button></div>
   </div>
   <h2>Workstreams \u2192 one thesis</h2>`+
   prof.workstreams.map(ws=>`<div class="conf"><div class="top"><span class="acr">${esc(ws.label)}</span><span class="name">${esc(ws.short)} </span><span class="pill ${esc(ws.tagCls||"")}">${esc(ws.tag||"")}</span></div>
@@ -515,6 +515,7 @@ function renderProfile(){
   const ep=document.getElementById("editProf"); if(ep) ep.addEventListener("click",editProfileDialog);
   const aw=document.getElementById("addWs"); if(aw) aw.addEventListener("click",()=>editWsDialog(null));
   const sh=document.getElementById("shareBtn"); if(sh) sh.addEventListener("click",shareDialog);
+  const rs=document.getElementById("restartSetup"); if(rs) rs.addEventListener("click",restartSetupDialog);
 }
 function fld(label,id,val,rows){ return `<label style="font-size:12.5px;font-weight:600;display:block;margin:8px 0 3px">${label}</label>`+
   (rows?`<textarea id="${id}" rows="${rows}">${esc(val||"")}</textarea>`:`<input id="${id}" style="width:100%;font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--ground);color:var(--ink)" value="${esc(val||"")}">`);
@@ -876,4 +877,31 @@ function signInDialog(){
   d.querySelector("#siSend").addEventListener("click",send);
   d.querySelector("#siEmail").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); send(); } });
   d.querySelector("#siEmail").focus();
+}
+
+// ---- restart setup: wipe THIS account/browser and rerun the wizard ----
+function restartSetupDialog(){
+  if(EXAMPLE||RO) return;
+  const d=document.createElement("dialog"); d.style.maxWidth="440px";
+  const acct=sbUser?("the account "+(sbUser.email||"")):"this browser";
+  d.innerHTML=`<h2 style="margin:0 0 8px">Start fresh?</h2>
+    <p style="font-size:13.5px;margin:0 0 6px">This clears the researcher profile and the entire pipeline for <b>${esc(acct)}</b>${sbUser?" (synced to the cloud immediately)":""}, then runs the 5-question setup again.</p>
+    <p style="font-size:13px;color:var(--muted);margin:0 0 10px">Want a backup first? Cancel and use Pipeline \u2192 Export JSON.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button type="button" class="btn" id="rsCancel">Cancel</button>
+      <button type="button" class="btn primary" id="rsGo">Clear and restart setup</button>
+    </div>`;
+  document.body.appendChild(d); d.showModal();
+  d.addEventListener("close",()=>d.remove());
+  d.querySelector("#rsCancel").addEventListener("click",()=>d.close());
+  d.querySelector("#rsGo").addEventListener("click",()=>{
+    prof=structuredClone(EMPTY_PROFILE);
+    data=[];
+    saveProf(); save();
+    tileFilter=null;
+    renderDash(); renderPipe(); renderProfile();
+    d.close();
+    switchTab("dash");
+    openWizard();
+  });
 }
