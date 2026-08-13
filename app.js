@@ -17,7 +17,10 @@ let RO=false; // read-only share view
 function saveProf(){ if(RO||EXAMPLE) return; try{localStorage.setItem(PKEY,JSON.stringify(prof))}catch(e){} if(typeof pushCloud==="function") pushCloud(); }
 function wsGet(w){ return prof.workstreams.find(x=>x.w===w)||prof.workstreams[0]; }
 function computeFits(c){
-  const out=new Set(prof.curated?(c.fits||[]).filter(w=>prof.workstreams.some(x=>x.w===w)):[]);
+  const out=new Set([
+    ...(prof.curated?(c.fits||[]):[]),
+    ...(c.myFits||[]) // user-adopted assignments always count
+  ].filter(w=>prof.workstreams.some(x=>x.w===w)));
   const text=(c.acr+" "+c.name+" "+(c.why||"")+" "+(c.city||"")).toLowerCase();
   const kw={};
   prof.workstreams.forEach(ws=>{
@@ -93,9 +96,25 @@ function switchTab(name){
 }
 function renderMatch(w){
   const ws=wsGet(w);
-  document.getElementById("matchTitle").textContent="Venue matches \u2014 "+ws.label+": "+ws.short;
+  document.getElementById("matchTitle").textContent="Venue matches \u2014 "+ws.label+((ws.short&&!ws.label.includes(ws.short.slice(0,24)))?": "+ws.short:"");
   document.getElementById("matchNote").textContent=ws.matchNote||"";
   const list=data.filter(c=>computeFits(c).includes(w));
+  if(!list.length){
+    document.getElementById("matchList").innerHTML=`<div class="note">
+      <b>No catalog venues match this paper yet.</b> The built-in catalog leans toward education, motivation, and management research \u2014 your topic may live outside it. Three ways forward:</div>
+      <div class="editbtns" style="margin-top:12px">
+        <button class="btn primary" id="huntBtn">Copy venue-hunt prompt for my CoPilot agent</button>
+        <button class="btn" id="catBtn">Browse the full catalog (${SEED.length})</button>
+        <button class="btn" id="kwBtn">Edit this paper\u2019s keywords</button>
+      </div>
+      <p class="sub" style="margin-top:8px">The hunt prompt asks an AI agent (e.g. Claude) to find 8\u201312 credible venues for this exact paper and return them in a format you can Import JSON straight into the pipeline.</p>
+      <div id="catList"></div>`;
+    document.getElementById("huntBtn").addEventListener("click",e=>copyText(huntPrompt(ws),e.target,"Copy venue-hunt prompt for my CoPilot agent"));
+    document.getElementById("kwBtn").addEventListener("click",()=>editWsDialog(w));
+    document.getElementById("catBtn").addEventListener("click",()=>renderCatalog(w));
+    switchTab("match"); window.scrollTo({top:0});
+    return;
+  }
   document.getElementById("matchList").innerHTML=groupedCards(list,"");
   list.forEach(c=>{ const hits=c.__kw&&c.__kw[w];
     if(hits){ const el=document.querySelector("#matchList #conf-"+CSS.escape(c.id)+" .why");
@@ -724,4 +743,29 @@ function enterExample(){
   document.querySelector("header.page").prepend(b);
   b.querySelector("#exExit").onclick=()=>{ EXAMPLE=false; prof=structuredClone(EMPTY_PROFILE); data=[]; b.remove(); renderDash(); renderPipe(); renderProfile(); openWizard(); };
   renderDash(); renderPipe(); renderProfile();
+}
+
+// ---- venue-hunt prompt (agent finds venues outside the catalog) ----
+function huntPrompt(ws){
+  return `You are my Research Conference CoPilot (SCOUT role). Find 8\u201312 credible venues (conferences AND journals) for this paper, using web search and official sites only.\n\nPAPER: ${ws.title||ws.short||ws.label}\nStage: ${ws.tag||"early"}\nKeywords: ${(ws.keywords||[]).join(", ")}\nRESEARCHER: ${profText()||prof.name}\nBase location: ${(prof.meta&&prof.meta.country)||"(see profile)"}\n\nRULES: verify every deadline on the official page (note the timezone); score each venue 1\u20135 on topical fit, reputation/indexing (verified at the publisher, not the CFP), deadline feasibility (\u22653 weeks out), cost from my location, and career value; SCREEN OUT predatory venues (guaranteed acceptance, pay-to-publish tone, unverifiable indexing, multi-city same-week series) but list them in a one-line "screened out" note.\n\nOUTPUT BOTH:\n1. A ranked table: venue | where/when | deadline | scores | link.\n2. A fenced \u0060\u0060\u0060json block in this exact copilot-scout-digest format so I can import it directly:\n{"type":"copilot-scout-digest","version":1,"date":"YYYY-MM-DD","venues":[{"id":"kebab-slug-year","acr":"ACRO 2027","name":"full name","city":"City, Country","event":"YYYY-MM-DD or null","dl":"YYYY-MM-DD or null","approx":true,"tier":2,"url":"https://official","why":"one-line fit rationale","fits":[${ws.w}],"sub":"verify","subUrl":null,"src":"venue hunt YYYY-MM-DD"}]}\nUse null for anything unverified; never invent URLs, emails, or dates.`;
+}
+// ---- catalog browser (lite, ahead of P2 #23) ----
+function renderCatalog(w){
+  const L=document.getElementById("catList"); if(!L) return;
+  const have=new Set(data.map(c=>c.id));
+  const rest=SEED.filter(v=>!have.has(v.id));
+  L.innerHTML=`<div class="group-h" style="margin-top:18px">Full catalog \u2014 curated venues not in your pipeline (${rest.length})</div>`+
+    (rest.length?rest.map(v=>`<div class="dl-row">
+      <span class="date mono">${fmt(v.dl)}</span>
+      <span class="who"><b>${esc(v.acr)}</b> <span class="m">\u00b7 ${esc((v.name||"").slice(0,60))} \u00b7 ${esc(v.city)}</span></span>
+      ${qBadge(v)}
+      <button class="btn catadd" data-id="${esc(v.id)}">Add</button>
+    </div>`).join(""):"<p class='sub'>Everything in the catalog is already in your pipeline.</p>");
+  L.querySelectorAll(".catadd").forEach(b=>b.addEventListener("click",()=>{
+    const v=SEED.find(x=>x.id===b.dataset.id); if(!v) return;
+    const c=structuredClone(v); if(!prof.curated) delete c.fits;
+    c.status="watching"; c.notes="";
+    if(w){ c.myFits=[w]; } // adding from a paper's match page adopts it for that paper
+    data.push(c); save(); renderDash(); renderPipe(); renderCatalog(w);
+  }));
 }
