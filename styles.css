@@ -132,3 +132,11 @@ dialog.wiz{border:1px solid var(--line);border-radius:14px;background:var(--card
 .chip.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
 .wizpaper{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px}
 @media (max-width:640px){ dialog.wiz{width:100vw;height:100dvh;max-height:100dvh;border-radius:0} }
+/* venue hunting */
+.huntbox{border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:14px;background:var(--card)}
+.huntphase{font-weight:650;font-size:14px;margin-bottom:10px}
+.huntbar{height:6px;border-radius:3px;background:var(--chip);overflow:hidden}
+.huntfill{height:100%;width:38%;border-radius:3px;background:var(--accent);animation:huntslide 1.6s ease-in-out infinite}
+@keyframes huntslide{0%{margin-left:-38%}100%{margin-left:100%}}
+@media (prefers-reduced-motion: reduce){.huntfill{animation:none;width:100%;opacity:.5}}
+.huntmeta{font-size:12px;color:var(--muted);margin-top:8px}

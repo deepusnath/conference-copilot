@@ -103,19 +103,22 @@ function renderMatch(w){
     document.getElementById("matchList").innerHTML=`<div class="note">
       <b>No catalog venues match this paper yet.</b> The built-in catalog leans toward education, motivation, and management research \u2014 your topic may live outside it. Three ways forward:</div>
       <div class="editbtns" style="margin-top:12px">
-        <button class="btn primary" id="huntBtn">Copy venue-hunt prompt for my CoPilot agent</button>
+        <button class="btn primary" id="huntGo">\ud83d\udd0d Hunt venues now</button>
+        <button class="btn" id="huntBtn">Copy hunt prompt instead</button>
         <button class="btn" id="catBtn">Browse the full catalog (${SEED.length})</button>
         <button class="btn" id="kwBtn">Edit this paper\u2019s keywords</button>
       </div>
-      <p class="sub" style="margin-top:8px">The hunt prompt asks an AI agent (e.g. Claude) to find 8\u201312 credible venues for this exact paper and return them in a format you can Import JSON straight into the pipeline.</p>
+      <div id="huntUI"></div>
       <div id="catList"></div>`;
-    document.getElementById("huntBtn").addEventListener("click",e=>copyText(huntPrompt(ws),e.target,"Copy venue-hunt prompt for my CoPilot agent"));
+    document.getElementById("huntGo").addEventListener("click",()=>startHunt(w,"basic"));
+    document.getElementById("huntBtn").addEventListener("click",e=>copyText(huntPrompt(ws),e.target,"Copy hunt prompt instead"));
     document.getElementById("kwBtn").addEventListener("click",()=>editWsDialog(w));
     document.getElementById("catBtn").addEventListener("click",()=>renderCatalog(w));
     switchTab("match"); window.scrollTo({top:0});
     return;
   }
-  document.getElementById("matchList").innerHTML=groupedCards(list,"");
+  document.getElementById("matchList").innerHTML=groupedCards(list,"")+`<div class="editbtns" style="margin-top:16px"><button class="btn" id="huntGo2">\ud83d\udd0d Hunt more venues for this paper</button></div><div id="huntUI"></div>`;
+  document.getElementById("huntGo2").addEventListener("click",()=>startHunt(w,"basic"));
   list.forEach(c=>{ const hits=c.__kw&&c.__kw[w];
     if(hits){ const el=document.querySelector("#matchList #conf-"+CSS.escape(c.id)+" .why");
       if(el) el.innerHTML+=` <span class="verify">keyword match: ${esc(hits.join(", "))}</span>`; } });
@@ -768,4 +771,76 @@ function renderCatalog(w){
     if(w){ c.myFits=[w]; } // adding from a paper's match page adopts it for that paper
     data.push(c); save(); renderDash(); renderPipe(); renderCatalog(w);
   }));
+}
+
+// ---- integrated venue hunting (basic + extended) ----
+const HUNT_PHASES=[["Searching the web for venues\u2026",12],["Screening out predatory venues\u2026",18],["Checking deadlines and fit\u2026",25],["Formatting results\u2026",40]];
+let huntBusy=false,lastHunt=null;
+function huntHost(){ return document.getElementById("huntUI"); }
+async function startHunt(w,mode){
+  const H=huntHost(); if(!H||huntBusy) return;
+  const ws=wsGet(w);
+  const cfg=window.COPILOT_SUPABASE;
+  if(!cfg||!cfg.url){ H.innerHTML=`<div class="note">Integrated hunting needs the cloud backend \u2014 use the copy-prompt path instead.</div>`; return; }
+  if(!sb||!sbUser){ H.innerHTML=`<div class="note">Sign in (\u2601 under the tabs) to use integrated hunting \u2014 or use the copy-prompt path.</div>`; return; }
+  huntBusy=true;
+  const t0=Date.now(); let phase=0;
+  H.innerHTML=`<div class="huntbox"><div class="huntphase" id="hPhase">${HUNT_PHASES[0][0]}</div>
+    <div class="huntbar"><div class="huntfill"></div></div>
+    <div class="huntmeta" id="hMeta">${mode==="extended"?"Extended hunt \u2014 verifying on official sites; this can take a couple of minutes.":"Basic hunt \u2014 up to 25 candidates, usually under a minute."}</div></div>`;
+  const tick=setInterval(()=>{
+    const s=Math.round((Date.now()-t0)/1000);
+    while(phase<HUNT_PHASES.length-1&&s>=HUNT_PHASES[phase][1]) phase++;
+    const p=document.getElementById("hPhase"),m=document.getElementById("hMeta");
+    if(p) p.textContent=HUNT_PHASES[phase][0];
+    if(m) m.textContent=(mode==="extended"?"Extended hunt":"Basic hunt")+" \u00b7 "+s+"s elapsed";
+  },1000);
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    const prior=[...new Set([...data.map(c=>c.acr),...((lastHunt&&lastHunt.w===w)?lastHunt.venues.map(v=>v.acr):[])])];
+    const res=await fetch(cfg.url+"/functions/v1/venue-hunt",{
+      method:"POST",
+      headers:{"Content-Type":"application/json",apikey:cfg.anonKey,Authorization:"Bearer "+(session&&session.access_token||"")},
+      body:JSON.stringify({mode,prior:prior.slice(0,80),
+        paper:{w,title:ws.title||ws.short||ws.label,stage:ws.tag,keywords:ws.keywords||[]},
+        profile:{name:prof.name,stage:(prof.meta&&prof.meta.stage)||"",country:(prof.meta&&prof.meta.country)||""}})
+    });
+    const out=await res.json().catch(()=>({error:"unreadable response"}));
+    clearInterval(tick); huntBusy=false;
+    if(!res.ok||out.error){
+      const msg=res.status===404?"The venue-hunt backend isn\u2019t deployed yet (see supabase/README.md)":out.error||("error "+res.status);
+      H.innerHTML=`<div class="note"><b>Hunt unavailable:</b> ${esc(String(msg))}. The copy-prompt path still works.</div>`;
+      return;
+    }
+    lastHunt={w,mode,venues:out.digest.venues};
+    renderHuntResults(w,out);
+  }catch(e){
+    clearInterval(tick); huntBusy=false;
+    H.innerHTML=`<div class="note"><b>Hunt failed:</b> ${esc(String(e&&e.message||e))}. The copy-prompt path still works.</div>`;
+  }
+}
+function renderHuntResults(w,out){
+  const H=huntHost(); if(!H) return;
+  const have=new Set(data.map(c=>c.id));
+  const vs=out.digest.venues.filter(v=>!have.has(v.id));
+  H.innerHTML=`<div class="group-h" style="margin-top:16px">${out.mode==="extended"?"Extended":"Basic"} hunt \u2014 ${vs.length} venue${vs.length===1?"":"s"} found</div>
+    ${out.summary?`<p class="sub">${esc(out.summary)}</p>`:""}
+    ${vs.length?vs.map(v=>`<div class="dl-row">
+      <span class="date mono">${fmt(v.dl)}</span>
+      <span class="who"><b>${esc(v.acr)}</b> <span class="m">\u00b7 ${esc((v.name||"").slice(0,60))} \u00b7 ${esc(v.city||"")}</span> ${v.approx?'<span class="verify">verify</span>':""}</span>
+      ${v.url?`<a href="${esc(v.url)}" target="_blank" rel="noopener">site \u2197</a>`:""}
+      <button class="btn hadd" data-id="${esc(v.id)}">Add</button>
+    </div>`).join(""):"<p class='sub'>Nothing new beyond what you already track.</p>"}
+    <div class="editbtns" style="margin-top:12px">
+      ${out.mode==="basic"?`<button class="btn primary" id="huntExt">\ud83d\udd0e Extended hunt \u2014 verify deadlines &amp; portals</button>`:""}
+      <button class="btn" id="huntAddAll">Add all</button>
+    </div>`;
+  const grab=id=>{ const v=out.digest.venues.find(x=>x.id===id); if(!v) return;
+    if(data.some(c=>c.id===v.id)) return;
+    data.push({...v,myFits:[w],status:"watching",notes:""}); save(); };
+  H.querySelectorAll(".hadd").forEach(b=>b.addEventListener("click",()=>{ grab(b.dataset.id); b.textContent="Added \u2713"; b.disabled=true; renderDash(); renderPipe(); }));
+  const all=document.getElementById("huntAddAll");
+  if(all) all.addEventListener("click",()=>{ vs.forEach(v=>grab(v.id)); renderDash(); renderPipe(); renderMatch(w); });
+  const ext=document.getElementById("huntExt");
+  if(ext) ext.addEventListener("click",()=>startHunt(w,"extended"));
 }
