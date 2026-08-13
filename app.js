@@ -45,6 +45,10 @@ else{ const known=new Map(data.map(c=>[c.id,c])); let changed=false;
       if(prof.curated&&JSON.stringify(cur.fits||null)!==JSON.stringify(s.fits||null)){ cur.fits=s.fits; changed=true; }
       if((cur.kind||null)!==(s.kind||null)){ cur.kind=s.kind; changed=true; }
       if(cur.tier!==s.tier){ cur.tier=s.tier; changed=true; }
+      // venue-factual curated fields (never user-edited) — keep fresh for everyone
+      for(const f of ["q","sub","subUrl","subNote"]){
+        if(JSON.stringify(cur[f]??null)!==JSON.stringify(s[f]??null)){ cur[f]=s[f]; changed=true; }
+      }
     }
   });
   if(changed) save(); }
