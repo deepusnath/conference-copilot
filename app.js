@@ -117,7 +117,7 @@ function renderMatch(w){
     switchTab("match"); window.scrollTo({top:0});
     return;
   }
-  document.getElementById("matchList").innerHTML=groupedCards(list,"")+`<div class="editbtns" style="margin-top:16px"><button class="btn" id="huntGo2">\ud83d\udd0d Hunt more venues for this paper</button></div><div id="huntUI"></div>`;
+  document.getElementById("matchList").innerHTML=`<div class="editbtns" style="margin:0 0 6px"><button class="btn primary" id="huntGo2">\ud83d\udd0d Hunt more venues \u2014 AI web search</button></div><div id="huntUI"></div>`+groupedCards(list,"");
   document.getElementById("huntGo2").addEventListener("click",()=>startHunt(w,"basic"));
   list.forEach(c=>{ const hits=c.__kw&&c.__kw[w];
     if(hits){ const el=document.querySelector("#matchList #conf-"+CSS.escape(c.id)+" .why");
