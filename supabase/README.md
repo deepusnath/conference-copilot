@@ -37,3 +37,16 @@ Powers the in-app "Hunt venues" button (basic + extended hunting).
 Cost control: hunts run on `claude-opus-5` with web search — roughly $0.10–0.50
 per basic hunt, more for extended. The function enforces 10 hunts/user/day; edit
 the constant in index.ts to change model or limits.
+
+## Deadline nudges (one-time, ~5 minutes; needs Resend from the SMTP setup)
+
+1. Run `migrations/004_nudge_log.sql` in the SQL editor — creates the dedupe
+   table AND schedules the daily 07:30 IST run (pg_cron + pg_net).
+2. Add the function secret: Edge Functions → deadline-nudges → Secrets →
+   `RESEND_API_KEY` = your Resend API key. Optional: `NUDGE_FROM` =
+   "Conference CoPilot <copilot@yourdomain>" once your domain is verified in
+   Resend (default sender is Resend's onboarding address, which only delivers
+   to your own Resend account email).
+3. Nudges go to each signed-in user at T-21/T-7/T-3 days before deadlines on
+   venues with status watching/shortlisted/drafting — one email digest per day
+   per user, each venue+threshold fires exactly once (nudge_log dedupe).
