@@ -1,21 +1,22 @@
 {
- "date": "2026-08-18",
+ "date": "2026-08-21",
  "added": [
-  "wcfp-isfe-2026-195315",
-  "wcfp-edit-2026-191585",
-  "wcfp-mltec-2026-192175",
-  "wcfp-icetc-2026-191417",
-  "wcfp-acm-icbde-2026-194138",
-  "wcfp-aets-2026-192790",
-  "wcfp-springer-aeit-2027-194951",
-  "wcfp-celda-2026-195337",
-  "wcfp-ieee-apiet-2027-194989"
+  "wcfp-eduait-2026-191267",
+  "wcfp-icmeim-2026-201139",
+  "wcfp-ieee-icetm-2026-191355",
+  "wcfp-icmet-2026-194142",
+  "wcfp-aies-2026-194945"
  ],
  "changed": [
   {
-   "id": "wcfp-edut-2026-190031",
-   "from": "2026-08-15",
-   "to": "2026-08-22"
+   "id": "wcfp-ertt-2026-190343",
+   "from": "2026-08-20",
+   "to": "2026-08-28"
+  },
+  {
+   "id": "wcfp-seaa-2026-194648",
+   "from": "2026-08-21",
+   "to": "2026-08-31"
   }
  ]
 }
