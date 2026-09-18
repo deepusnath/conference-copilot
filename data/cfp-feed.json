@@ -1,22 +1,23 @@
 {
  "type": "copilot-scout-digest",
  "version": 1,
- "date": "2026-09-15",
+ "date": "2026-09-18",
  "source": "scrapers",
  "venues": [
   {
-   "id": "wcfp-acp-2027-201344",
-   "acr": "ACP 2027",
-   "name": "The 17th Asian Conference on Psychology & the Behavioral Sciences (ACP2027)",
-   "city": "Tokyo",
-   "event": "2027-03-31",
-   "dl": "2026-09-18",
+   "id": "wcfp-edut-2026-190031",
+   "acr": "EDUT 2026",
+   "name": "4th International Conference on Education & Technology",
+   "city": "Virtual Conference",
+   "event": "2026-09-29",
+   "dl": "2026-09-19",
    "approx": true,
    "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=201344",
+   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=190031",
    "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
    "fits": [
-    2
+    2,
+    4
    ],
    "sub": "verify",
    "src": "wikicfp scraper"
@@ -31,24 +32,6 @@
    "approx": true,
    "tier": 2,
    "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=200044",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2,
-    4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-edut-2026-190031",
-   "acr": "EDUT 2026",
-   "name": "4th International Conference on Education & Technology",
-   "city": "Virtual Conference",
-   "event": "2026-09-29",
-   "dl": "2026-09-19",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=190031",
    "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
    "fits": [
     2,
@@ -261,7 +244,7 @@
    "approx": true,
    "tier": 2,
    "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=202520",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
    "fits": [
     2
    ],
@@ -278,7 +261,7 @@
    "approx": true,
    "tier": 2,
    "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=194648",
-   "why": "WikiCFP find (category: psychology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
    "fits": [
     2
    ],
@@ -459,6 +442,24 @@
    "src": "wikicfp scraper"
   },
   {
+   "id": "wcfp-ai4ei-2026-192828",
+   "acr": "AI4EI 2026",
+   "name": "2026 International Conference on Artificial Intelligence for Education Innovation",
+   "city": "Anqing, China",
+   "event": "2026-10-30",
+   "dl": "2026-09-30",
+   "approx": true,
+   "tier": 2,
+   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=192828",
+   "why": "WikiCFP find (category: psychology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "fits": [
+    2,
+    4
+   ],
+   "sub": "verify",
+   "src": "wikicfp scraper"
+  },
+  {
    "id": "wcfp-springer-aeit-2027-194951",
    "acr": "Springer AEIT 2027",
    "name": "Springer--2027 8th International Conference on Advances in Education and Information Technology (AEIT 2027)",
@@ -563,6 +564,24 @@
    "src": "wikicfp scraper"
   },
   {
+   "id": "wcfp-icedutech-2027-203248",
+   "acr": "ICEduTech 2027",
+   "name": "12th International Conference on Educational Technologies 2027",
+   "city": "Porto, Portugal",
+   "event": "2027-03-13",
+   "dl": "2026-10-09",
+   "approx": true,
+   "tier": 2,
+   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=203248",
+   "why": "WikiCFP find (category: e-learning) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "fits": [
+    2,
+    4
+   ],
+   "sub": "verify",
+   "src": "wikicfp scraper"
+  },
+  {
    "id": "wcfp-icetc-2026-191417",
    "acr": "ICETC 2026",
    "name": "2026 the 18th International Conference on Education Technology and Computers (ICETC 2026)",
@@ -648,40 +667,6 @@
    "fits": [
     2,
     4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-iceds-2027-201700",
-   "acr": "ICEDS 2027",
-   "name": "2027 8th International Conference on Education Development and Studies (ICEDS 2027)",
-   "city": "Glasgow, UK",
-   "event": "2027-04-15",
-   "dl": "2026-10-15",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=201700",
-   "why": "WikiCFP find (category: e-learning) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-bdee-2027-202767",
-   "acr": "BDEE 2027",
-   "name": "2027 The 7th International Conference on Big Data Engineering and Education (BDEE 2027)",
-   "city": "Zhengzhou, Henan, China",
-   "event": "2027-04-16",
-   "dl": "2026-10-20",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=202767",
-   "why": "WikiCFP find (category: e-learning) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
    ],
    "sub": "verify",
    "src": "wikicfp scraper"
