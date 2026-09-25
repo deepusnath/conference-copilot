@@ -1,252 +1,9 @@
 {
  "type": "copilot-scout-digest",
  "version": 1,
- "date": "2026-09-22",
+ "date": "2026-09-25",
  "source": "scrapers",
  "venues": [
-  {
-   "id": "wcfp-nmdme-2026-202520",
-   "acr": "NMDME 2026",
-   "name": "2026 6th International Conference on New Media Development and Modernized Education",
-   "city": "Chengdu, China",
-   "event": "2026-11-27",
-   "dl": "2026-09-23",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=202520",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-seaa-2026-194648",
-   "acr": "SEAA 2026",
-   "name": "2026 5th International Conference on Science Education and Art Appreciation",
-   "city": "Chengdu, China",
-   "event": "2026-10-30",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=194648",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-icssiet-2026-202941",
-   "acr": "ICSSIET 2026",
-   "name": "7 th International Congress of Social Science, Innovation and Educational Technologies (ICSSIET 2026)",
-   "city": "Paris, FRANCE",
-   "event": "2026-09-26",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=202941",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2,
-    4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-acm-iceel-2026-192391",
-   "acr": "ACM ICEEL 2026",
-   "name": "ACM--2026 10th International Conference on Education and E-Learning (ICEEL 2026)",
-   "city": "Tokyo, Japan",
-   "event": "2026-11-27",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=192391",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2,
-    4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-eset-2026-194137",
-   "acr": "ESET 2026",
-   "name": "ACM--2026 The 10th International Conference on E-Society, E-Education and E-Technology (ESET 2026)",
-   "city": "Hakodate, Hokkaido, Japan",
-   "event": "2026-12-11",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=194137",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2,
-    4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-ieee-asiaedu-2026-194240",
-   "acr": "IEEE AsiaEdu 2026",
-   "name": "IEEE--2026 Asia Conference on Education Technology (AsiaEdu 2026)",
-   "city": "Niigata, Japan",
-   "event": "2026-11-28",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=194240",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2,
-    4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-acm-eset-2026-194136",
-   "acr": "ACM ESET 2026",
-   "name": "ACM--2026 The 10th International Conference on E-Society, E-Education and E-Technology (ESET 2026)",
-   "city": "Hakodate, Hokkaido, Japan",
-   "event": "2026-12-11",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=194136",
-   "why": "WikiCFP find (category: e-learning) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2,
-    4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-miced-2026-191526",
-   "acr": "MICED 2026",
-   "name": "Malaysia-China International Conference on  Educational Development",
-   "city": "Malaysia",
-   "event": "2026-11-05",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=191526",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-miced-2026-191527",
-   "acr": "MICED 2026",
-   "name": "Malaysia-China International Conference on  Educational Development",
-   "city": "Malaysia",
-   "event": "2026-11-05",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=191527",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-miced-2026-194988",
-   "acr": "MICED 2026",
-   "name": "Malaysia-China International Conference on  Educational Development",
-   "city": "Malaysia",
-   "event": "2026-11-05",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=194988",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-miced-2026-199485",
-   "acr": "MICED 2026",
-   "name": "Malaysia-China International Conference on  Educational Development",
-   "city": "Malaysia",
-   "event": "2026-11-05",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=199485",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-miced-2026-200018",
-   "acr": "MICED 2026",
-   "name": "Malaysia-China International Conference on  Educational Development",
-   "city": "Malaysia",
-   "event": "2026-11-05",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=200018",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-miced-2026-200305",
-   "acr": "MICED 2026",
-   "name": "Malaysia-China International Conference on  Educational Development",
-   "city": "Malaysia",
-   "event": "2026-11-05",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=200305",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-miced-2026-201161",
-   "acr": "MICED 2026",
-   "name": "Malaysia-China International Conference on  Educational Development",
-   "city": "Malaysia",
-   "event": "2026-11-05",
-   "dl": "2026-09-25",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=201161",
-   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
   {
    "id": "wcfp-ite-2026-200044",
    "acr": "ITE 2026",
@@ -368,6 +125,40 @@
    "fits": [
     2,
     4
+   ],
+   "sub": "verify",
+   "src": "wikicfp scraper"
+  },
+  {
+   "id": "wcfp-mmet-2026-203055",
+   "acr": "MMET 2026",
+   "name": "2026 11th International Conference on Modern Management, Education and Social Sciences",
+   "city": "Sanya,China",
+   "event": "2026-11-13",
+   "dl": "2026-09-30",
+   "approx": true,
+   "tier": 2,
+   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=203055",
+   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "fits": [
+    2
+   ],
+   "sub": "verify",
+   "src": "wikicfp scraper"
+  },
+  {
+   "id": "wcfp-2nd-icimitai-2026-190533",
+   "acr": "2nd ICIMITAI  2026",
+   "name": "The 2nd International Conference on Information Management, IT & AI (ICIMITAI) for Business, Management, Finance, Industries, Innovation & Education",
+   "city": "Boston, USA",
+   "event": "2026-10-23",
+   "dl": "2026-09-30",
+   "approx": true,
+   "tier": 2,
+   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=190533",
+   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "fits": [
+    2
    ],
    "sub": "verify",
    "src": "wikicfp scraper"
@@ -508,6 +299,23 @@
    "fits": [
     2,
     4
+   ],
+   "sub": "verify",
+   "src": "wikicfp scraper"
+  },
+  {
+   "id": "wcfp-nmdme-2026-202520",
+   "acr": "NMDME 2026",
+   "name": "2026 6th International Conference on New Media Development and Modernized Education",
+   "city": "Chengdu, China",
+   "event": "2026-11-27",
+   "dl": "2026-10-09",
+   "approx": true,
+   "tier": 2,
+   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=202520",
+   "why": "WikiCFP find (category: educational technology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "fits": [
+    2
    ],
    "sub": "verify",
    "src": "wikicfp scraper"
