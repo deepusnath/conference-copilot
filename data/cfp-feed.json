@@ -1,95 +1,9 @@
 {
  "type": "copilot-scout-digest",
  "version": 1,
- "date": "2026-10-06",
+ "date": "2026-10-09",
  "source": "scrapers",
  "venues": [
-  {
-   "id": "wcfp-scap-2026-192379",
-   "acr": "SCAP 2026",
-   "name": "10th Singapore Conference on Applied Psychology ‘LIVE’",
-   "city": "Singapore",
-   "event": "2026-12-08",
-   "dl": "2026-10-07",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=192379",
-   "why": "WikiCFP find (category: psychology) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-icela-2026-203365",
-   "acr": "ICELA 2026",
-   "name": "2026 6th International Conference on Education, Language and Art",
-   "city": "Guilin, China",
-   "event": "2026-11-27",
-   "dl": "2026-10-09",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=203365",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-nmdme-2026-202520",
-   "acr": "NMDME 2026",
-   "name": "2026 6th International Conference on New Media Development and Modernized Education",
-   "city": "Chengdu, China",
-   "event": "2026-11-27",
-   "dl": "2026-10-09",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=202520",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-seaa-2026-194648",
-   "acr": "SEAA 2026",
-   "name": "2026 5th International Conference on Science Education and Art Appreciation",
-   "city": "Chengdu, China",
-   "event": "2026-10-30",
-   "dl": "2026-10-09",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=194648",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
-  {
-   "id": "wcfp-icedutech-2027-203248",
-   "acr": "ICEduTech 2027",
-   "name": "12th International Conference on Educational Technologies 2027",
-   "city": "Porto, Portugal",
-   "event": "2027-03-13",
-   "dl": "2026-10-09",
-   "approx": true,
-   "tier": 2,
-   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=203248",
-   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
-   "fits": [
-    2,
-    4
-   ],
-   "sub": "verify",
-   "src": "wikicfp scraper"
-  },
   {
    "id": "wcfp-ieee-icetc-2026-191417",
    "acr": "IEEE ICETC 2026",
@@ -145,9 +59,9 @@
    "src": "wikicfp scraper"
   },
   {
-   "id": "wcfp-aies-2026-194945",
-   "acr": "AIES 2026",
-   "name": "2026 International Conference on Artificial Intelligence and Education Systems (AIES 2026)",
+   "id": "wcfp-springer-aies-2026-194945",
+   "acr": "Springer AIES 2026",
+   "name": "Springer--2026 International Conference on Artificial Intelligence and Education Systems (AIES 2026)",
    "city": "Kunming, China",
    "event": "2026-12-18",
    "dl": "2026-10-10",
@@ -279,6 +193,24 @@
    "approx": true,
    "tier": 2,
    "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=195298",
+   "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
+   "fits": [
+    2,
+    4
+   ],
+   "sub": "verify",
+   "src": "wikicfp scraper"
+  },
+  {
+   "id": "wcfp-mltec-2026-192175",
+   "acr": "MLTEC  2026",
+   "name": "7th International Conference on Machine Learning Techniques",
+   "city": "Sydney, Australia",
+   "event": "2026-12-19",
+   "dl": "2026-10-11",
+   "approx": true,
+   "tier": 2,
+   "url": "http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=192175",
    "why": "WikiCFP find (category: education) — UNVETTED: run the vet checklist (indexing, organisers, predatory signals) before shortlisting.",
    "fits": [
     2,
